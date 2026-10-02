@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Examination Management Portal{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/emp-logo.png') }}">
 
     <!-- Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +27,7 @@
     <header class="emp-navbar d-flex flex-wrap align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-4">
             <a href="{{ url_for('auth.index') }}" class="emp-navbar-brand">
-                <span class="brand-logo-text"><i class="bi bi-mortarboard-fill"></i> EMP</span>
+                <span class="brand-logo-text">EMP</span>
                 <span class="text-emp-secondary d-none d-md-inline">| Examination Management</span>
             </a>
 
