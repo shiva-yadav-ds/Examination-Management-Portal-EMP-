@@ -75,7 +75,7 @@
 
     {% if bookings %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Candidate</th>
@@ -89,19 +89,19 @@
                 {% for b in bookings %}
                 {% set total_score = b.evaluations|sum(attribute='marks') %}
                 <tr>
-                    <td>
+                    <td data-label="Candidate">
                         <span class="fw-medium">{{ b.student.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.student.roll_no or "No Roll No" }} &bull; {{ b.student.email }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Slot &amp; Evaluator">
                         <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             Examiner: {{ b.slot.examiner.name }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Rubric Breakdown">
                         <ul class="list-unstyled mb-0" style="font-size:0.8125rem;">
                             {% for ev in b.evaluations %}
                             <li>
@@ -113,11 +113,11 @@
                             {% endfor %}
                         </ul>
                     </td>
-                    <td>
+                    <td data-label="Total Score">
                         <span class="fs-6 fw-bold text-primary">{{ total_score }}</span>
                         <span class="text-emp-secondary" style="font-size:0.8125rem;">/ {{ selected_exam.max_marks }}</span>
                     </td>
-                    <td>
+                    <td data-label="Evaluated On">
                         <span style="font-size:0.8125rem;">
                             {% if b.evaluations and b.evaluations[0].evaluated_at %}
                                 {{ b.evaluations[0].evaluated_at.strftime('%d %b %Y') }}

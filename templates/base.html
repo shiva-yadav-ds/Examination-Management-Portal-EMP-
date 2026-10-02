@@ -24,17 +24,17 @@
 <body style="min-height: 100%; display: flex; flex-direction: column;">
 
     <!-- Header / Navbar -->
-    <header class="emp-navbar d-flex flex-wrap align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-4">
+    <header class="emp-navbar d-flex align-items-center justify-content-between">
+        <div class="emp-navbar-start d-flex align-items-center gap-4">
             <a href="{{ url_for('auth.index') }}" class="emp-navbar-brand">
                 <span class="brand-logo-text">EMP</span>
-                <span class="text-emp-secondary d-none d-md-inline">| Examination Management</span>
+                <span class="text-emp-secondary d-none d-xl-inline">| Examination Management</span>
             </a>
 
     {# --- Navbar: Role-based navigation links (hidden on mobile) --- #}
             {% if current_user.is_authenticated %}
             {% set ep = request.endpoint or '' %}
-            <nav class="d-none d-md-flex align-items-center gap-1">
+            <nav class="d-none d-xl-flex align-items-center gap-1">
                 {% if current_user.role == 'admin' %} {# Admin gets full management nav #}
                     <a href="{{ url_for('admin.dashboard') }}" class="emp-nav-link {% if ep == 'admin.dashboard' %}active{% endif %}">Dashboard</a>
                     <a href="{{ url_for('admin.courses') }}" class="emp-nav-link {% if 'courses' in ep %}active{% endif %}">Courses</a>
@@ -62,10 +62,10 @@
             {% endif %}
         </div>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="emp-navbar-actions d-flex align-items-center gap-2">
             {% if current_user.is_authenticated %}
                 <!-- Mobile Menu Toggle -->
-                <button class="emp-mobile-menu-toggle d-md-none" type="button" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+                <button class="emp-mobile-menu-toggle d-xl-none" type="button" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-controls="mobileNav" aria-expanded="false">
                     <i class="bi bi-list"></i>
                 </button>
 
@@ -74,7 +74,7 @@
                     <span>{{ current_user.name }}</span>
                     <span class="emp-chip emp-chip-active text-uppercase ms-1" style="font-size: 0.7rem;">{{ current_user.role }}</span>
                 </a>
-                <button type="button" class="emp-btn-outline emp-btn-sm" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <button type="button" class="emp-btn-outline emp-btn-sm" aria-label="Sign out" data-bs-toggle="modal" data-bs-target="#logoutModal">
                     <i class="bi bi-box-arrow-right d-none d-sm-inline"></i>
                     <span class="d-none d-sm-inline">Sign out</span>
                     <i class="bi bi-box-arrow-right d-sm-none"></i>
@@ -85,7 +85,7 @@
                     <span class="d-none d-sm-inline">Student Signup</span>
                     <span class="d-sm-none">Signup</span>
                 </a>
-                <a href="{{ url_for('auth.register_examiner') }}" class="emp-btn-outline emp-btn-sm d-none d-md-inline-flex">Examiner Signup</a>
+                <a href="{{ url_for('auth.register_examiner') }}" class="emp-btn-outline emp-btn-sm d-none d-lg-inline-flex">Examiner Signup</a>
             {% endif %}
         </div>
     </header>
@@ -257,6 +257,25 @@
         const mobileNav = document.getElementById('mobileNav');
 
         if (mobileMenuToggle && mobileNav) {
+            const header = document.querySelector('.emp-navbar');
+            function syncMenuPosition() {
+                const height = header.getBoundingClientRect().height;
+                mobileNav.style.top = height + 'px';
+                mobileNav.style.maxHeight = 'calc(100dvh - ' + height + 'px)';
+                if (window.innerWidth >= 1200) {
+                    mobileNav.classList.remove('show');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    mobileMenuToggle.querySelector('i').className = 'bi bi-list';
+                }
+            }
+            syncMenuPosition();
+            window.addEventListener('resize', syncMenuPosition);
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileNav.classList.contains('show')) {
+                    mobileMenuToggle.click();
+                    mobileMenuToggle.focus();
+                }
+            });
             mobileMenuToggle.addEventListener('click', function() {
                 mobileNav.classList.toggle('show');
                 const icon = this.querySelector('i');

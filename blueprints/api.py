@@ -5,6 +5,9 @@ from decorators import role_required
 from extensions import db
 from models import Booking, Course, Examination, User
 
+# Optional JSON controller. These routes reuse the same models and logged-in
+# identity as the HTML blueprints, but serialize data with jsonify instead of
+# rendering a Jinja template. They do not contain the core booking workflow.
 api_bp = Blueprint(
     "api",
     __name__,

@@ -30,7 +30,7 @@
 
     {% if slots %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Examination</th>
@@ -44,20 +44,20 @@
             <tbody>
                 {% for slot in slots %}
                 <tr>
-                    <td>
+                    <td data-label="Examination">
                         <span class="fw-medium">{{ slot.examination.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">{{ slot.examination.course.code }} - {{ slot.examination.duration }} min</div>
                     </td>
-                    <td>
+                    <td data-label="Date">
                         <span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span>
                     </td>
-                    <td>
+                    <td data-label="Time">
                         {{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}
                     </td>
-                    <td>
+                    <td data-label="Seats">
                         <span class="fw-medium">{{ slot.available_seats }}</span> / {{ slot.capacity }}
                     </td>
-                    <td>
+                    <td data-label="Status">
                         {% if slot.status == 'Available' %}
                             <span class="emp-chip emp-chip-active">Available</span>
                         {% elif slot.status == 'Full' %}
@@ -66,7 +66,7 @@
                             <span class="emp-chip emp-chip-inactive">Completed</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Actions" class="emp-record-actions">
                         <div class="d-inline-flex gap-2">
                             <a href="{{ url_for('examiner.slot_students', slot_id=slot.id) }}" class="emp-btn-outline emp-btn-sm">
                                 <i class="bi bi-people"></i> Students

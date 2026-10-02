@@ -6,8 +6,13 @@ from config import Config
 from extensions import db, login_manager
 
 
-# Application factory function.
-# Initializes Flask extensions, registers blueprints, creates tables, and sets up error handlers.
+# Application factory: this is the backend's composition root.
+#
+# Every web request starts on the ``app`` object returned here. The factory
+# creates Flask first, attaches shared extensions, then registers route groups.
+# That order matters because blueprints use ``db`` and ``login_manager`` from
+# extensions.py, while route functions need a configured app during requests.
+# Keeping this wiring together also lets tests create an isolated application.
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -18,13 +23,19 @@ def create_app():
     except OSError:
         pass
 
-    # Initialize database and login session manager
+    # Attach the shared objects declared in extensions.py to this Flask app.
+    # Models use ``db`` to describe tables; routes use that same ``db`` to
+    # query/commit. Flask-Login uses ``login_manager`` to turn the user id in a
+    # signed session cookie back into ``current_user`` for each request.
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "warning"
 
-    # Register blueprints for modular route handling
+    # Register route controller groups. A blueprint is not a separate app:
+    # POST /student/book/<slot_id> reaches student_bp, while /login reaches
+    # auth_bp. These blueprint names are also used by url_for(), for example
+    # url_for("student.dashboard").
     from blueprints.auth import auth_bp
     from blueprints.admin import admin_bp
     from blueprints.examiner import examiner_bp
@@ -37,7 +48,10 @@ def create_app():
     app.register_blueprint(student_bp)
     app.register_blueprint(api_bp)
 
-    # Initialize tables and seed initial admin on first run
+    # Database startup work needs an application context so SQLAlchemy knows
+    # which app/configuration it belongs to. The first run creates tables from
+    # models.py and seed_admin() inserts one administrator. Later runs reuse
+    # existing data and leave the existing administrator unchanged.
     with app.app_context():
         from models import (
             User,
@@ -55,7 +69,8 @@ def create_app():
         from seed import seed_admin
         seed_admin()
 
-    # Custom HTTP error pages
+    # Keep failures inside the normal EMP UI. The 500 handler also clears a
+    # failed transaction so the next request does not inherit a broken session.
     @app.errorhandler(403)
     def forbidden_error(error):
         return render_template("403.html"), 403
@@ -73,8 +88,11 @@ def create_app():
     return app
 
 
-# Flask-Login user loader callback.
-# Fetches the user record from the database using the user ID stored in the session cookie.
+# Flask-Login calls this before each protected request. login_user() in
+# auth.login stores only the user's id in the session cookie; this callback
+# fetches the fresh User row and exposes it as ``current_user`` to decorators,
+# blueprints, and Jinja templates. The local import avoids a circular import
+# while app.py is still building the application.
 @login_manager.user_loader
 def load_user(user_id):
     from models import User
@@ -82,7 +100,9 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
-# Create app instance for WSGI servers (e.g. gunicorn) and local execution
+# Importing ``app`` from this module gives WSGI servers (for example gunicorn)
+# the fully configured application. Running this file directly uses the same
+# object for local development.
 app = create_app()
 
 

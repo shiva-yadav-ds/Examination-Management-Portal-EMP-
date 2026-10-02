@@ -92,7 +92,7 @@
 
     {% if upcoming_bookings %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Examination</th>
@@ -105,28 +105,28 @@
             <tbody>
                 {% for b in upcoming_bookings %}
                 <tr>
-                    <td>
+                    <td data-label="Examination">
                         <span class="fw-medium">{{ b.examination.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.examination.course.code }} | {{ b.examination.type }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Date &amp; Time">
                         <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Examiner">
                         <span class="fw-medium">{{ b.slot.examiner.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.slot.examiner.examiner_profile.department if b.slot.examiner.examiner_profile and b.slot.examiner.examiner_profile.department else "Faculty" }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Status">
                         <span class="emp-chip emp-chip-active">Booked</span>
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         <a href="{{ url_for('student.bookings') }}" class="emp-btn-outline emp-btn-sm">
                             Manage
                         </a>

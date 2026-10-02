@@ -30,7 +30,7 @@
 
     {% if examiners %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -44,11 +44,11 @@
             <tbody>
                 {% for ex in examiners %}
                 <tr>
-                    <td><span class="fw-medium">{{ ex.name }}</span></td>
-                    <td><span class="text-emp-secondary">{{ ex.email }}</span></td>
-                    <td>{{ ex.examiner_profile.department if ex.examiner_profile and ex.examiner_profile.department else "-" }}</td>
-                    <td><span class="text-emp-secondary" style="font-size:0.8125rem;">{{ ex.created_at.strftime('%d %b %Y') }}</span></td>
-                    <td>
+                    <td data-label="Name"><span class="fw-medium">{{ ex.name }}</span></td>
+                    <td data-label="Email"><span class="text-emp-secondary">{{ ex.email }}</span></td>
+                    <td data-label="Department">{{ ex.examiner_profile.department if ex.examiner_profile and ex.examiner_profile.department else "-" }}</td>
+                    <td data-label="Registered"><span class="text-emp-secondary" style="font-size:0.8125rem;">{{ ex.created_at.strftime('%d %b %Y') }}</span></td>
+                    <td data-label="Status">
                         {% if ex.status == 'active' %}
                             <span class="emp-chip emp-chip-active"><span class="emp-stat-dot" style="background:var(--emp-success-text);width:5px;height:5px;"></span>Active</span>
                         {% elif ex.status == 'pending' %}
@@ -57,7 +57,7 @@
                             <span class="emp-chip emp-chip-inactive"><span class="emp-stat-dot" style="background:var(--emp-danger-text);width:5px;height:5px;"></span>Inactive</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Actions" class="emp-record-actions">
                         <div class="d-inline-flex gap-2">
                             {% if ex.status == 'pending' %}
                                 <form method="POST" action="{{ url_for('admin.approve_examiner', examiner_id=ex.id) }}" style="display:inline;">

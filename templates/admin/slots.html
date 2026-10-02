@@ -65,7 +65,7 @@
 
     {% if slots %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Examination</th>
@@ -79,27 +79,27 @@
             <tbody>
                 {% for s in slots %}
                 <tr>
-                    <td>
+                    <td data-label="Examination">
                         <span class="fw-medium">{{ s.examination.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">{{ s.examination.course.code }} &bull; {{ s.examination.duration }} min</div>
                     </td>
-                    <td>
+                    <td data-label="Date &amp; Time">
                         <span class="fw-medium">{{ s.exam_date.strftime('%d %b %Y') }}</span>
                         <div class="text-emp-secondary" style="font-size:0.8125rem;">
                             {{ s.start_time.strftime('%H:%M') }} - {{ s.end_time.strftime('%H:%M') }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Examiner">
                         <span class="fw-medium">{{ s.examiner.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">{{ s.examiner.examiner_profile.department if s.examiner.examiner_profile and s.examiner.examiner_profile.department else "Faculty" }}</div>
                     </td>
-                    <td>
+                    <td data-label="Seats">
                         <span class="fw-medium">{{ s.available_seats }}</span> / {{ s.capacity }}
                         {% if s.available_seats == 0 %}
                             <span class="badge bg-secondary ms-1">Filled</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td data-label="Status">
                         {% if s.status == 'Available' %}
                             <span class="emp-chip emp-chip-active">Available</span>
                         {% elif s.status == 'Full' %}
@@ -110,7 +110,7 @@
                             <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Actions" class="emp-record-actions">
                         {% if s.status != 'Cancelled' and s.status != 'Completed' %}
                         <button
                             class="emp-btn-outline emp-btn-sm"

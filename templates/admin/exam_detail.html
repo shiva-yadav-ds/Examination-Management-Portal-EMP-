@@ -271,7 +271,7 @@
     {% set active_exam_slots = exam.slots | selectattr('status', 'ne', 'Cancelled') | list %}
     {% if active_exam_slots %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Slot Date</th>
@@ -285,14 +285,14 @@
             <tbody>
                 {% for slot in active_exam_slots %}
                 <tr>
-                    <td><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
-                    <td>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
-                    <td><span class="fw-medium">{{ slot.examiner.name }}</span></td>
-                    <td>{{ slot.capacity }} students</td>
-                    <td>
+                    <td data-label="Slot Date"><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
+                    <td data-label="Time Window">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
+                    <td data-label="Examiner"><span class="fw-medium">{{ slot.examiner.name }}</span></td>
+                    <td data-label="Capacity">{{ slot.capacity }} students</td>
+                    <td data-label="Booked Candidates">
                         <span class="fw-semibold">{{ slot.capacity - slot.available_seats }}</span> / {{ slot.capacity }}
                     </td>
-                    <td>
+                    <td data-label="Status">
                         {% if slot.status == 'Available' %}
                             <span class="emp-chip emp-chip-active" style="font-size:0.7rem;">Available</span>
                         {% elif slot.status == 'Booked' %}
@@ -336,7 +336,7 @@
 
     {% if exam.rubrics %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Criterion</th>
@@ -349,11 +349,11 @@
             <tbody>
                 {% for rubric in exam.rubrics %}
                 <tr>
-                    <td><span class="fw-medium">{{ rubric.criterion_name }}</span></td>
-                    <td>{{ rubric.max_marks }}</td>
-                    <td>{{ "%.1f%%"|format(rubric.weightage) if rubric.weightage else "-" }}</td>
-                    <td><span class="text-emp-secondary">{{ rubric.description or "-" }}</span></td>
-                    <td style="text-align:right;">
+                    <td data-label="Criterion"><span class="fw-medium">{{ rubric.criterion_name }}</span></td>
+                    <td data-label="Max Marks">{{ rubric.max_marks }}</td>
+                    <td data-label="Weightage">{{ "%.1f%%"|format(rubric.weightage) if rubric.weightage else "-" }}</td>
+                    <td data-label="Description"><span class="text-emp-secondary">{{ rubric.description or "-" }}</span></td>
+                    <td style="text-align:right;" data-label="Actions" class="emp-record-actions">
                         {% if not rubric.evaluations %}
                         <button
                             class="emp-btn-outline emp-btn-sm"

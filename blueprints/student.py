@@ -27,6 +27,10 @@ from services import (
 )
 from utils import can_student_book, get_booking_window_info
 
+# Student controller. It exposes only the logged-in student's schedule,
+# bookings, profile, and published results. Its write endpoints coordinate with
+# services.py so Booking rows and ExamSlot seat counts change atomically, even
+# when two students try to reserve the same remaining seat.
 student_bp = Blueprint(
     "student",
     __name__,

@@ -76,7 +76,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Students ({{ results.students|length }})</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Roll No</th>
@@ -88,10 +88,10 @@
             <tbody>
                 {% for st in results.students %}
                 <tr>
-                    <td><strong class="text-primary">{{ st.roll_no or "-" }}</strong></td>
-                    <td><span class="fw-medium">{{ st.name }}</span></td>
-                    <td>{{ st.email }}</td>
-                    <td><span class="emp-chip emp-chip-active">Active</span></td>
+                    <td data-label="Roll No"><strong class="text-primary">{{ st.roll_no or "-" }}</strong></td>
+                    <td data-label="Name"><span class="fw-medium">{{ st.name }}</span></td>
+                    <td data-label="Email">{{ st.email }}</td>
+                    <td data-label="Status"><span class="emp-chip emp-chip-active">Active</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -108,7 +108,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Examiners ({{ results.examiners|length }})</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -120,10 +120,10 @@
             <tbody>
                 {% for ex in results.examiners %}
                 <tr>
-                    <td><span class="fw-medium">{{ ex.name }}</span></td>
-                    <td>{{ ex.email }}</td>
-                    <td>{{ ex.examiner_profile.department if ex.examiner_profile and ex.examiner_profile.department else "-" }}</td>
-                    <td>
+                    <td data-label="Name"><span class="fw-medium">{{ ex.name }}</span></td>
+                    <td data-label="Email">{{ ex.email }}</td>
+                    <td data-label="Department">{{ ex.examiner_profile.department if ex.examiner_profile and ex.examiner_profile.department else "-" }}</td>
+                    <td data-label="Status">
                         <span class="emp-chip {% if ex.status == 'active' %}g-chip-active{% elif ex.status == 'pending' %}g-chip-pending{% else %}g-chip-inactive{% endif %}">
                             {{ ex.status }}
                         </span>
@@ -144,7 +144,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Examinations ({{ results.exams|length }})</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Exam Name</th>
@@ -157,11 +157,11 @@
             <tbody>
                 {% for ex in results.exams %}
                 <tr>
-                    <td><span class="fw-medium">{{ ex.name }}</span></td>
-                    <td><span class="text-primary">{{ ex.course.code }}</span></td>
-                    <td>{{ ex.type }}</td>
-                    <td><span class="emp-chip emp-chip-active">{{ ex.status }}</span></td>
-                    <td style="text-align:right;">
+                    <td data-label="Exam Name"><span class="fw-medium">{{ ex.name }}</span></td>
+                    <td data-label="Course"><span class="text-primary">{{ ex.course.code }}</span></td>
+                    <td data-label="Type">{{ ex.type }}</td>
+                    <td data-label="Status"><span class="emp-chip emp-chip-active">{{ ex.status }}</span></td>
+                    <td style="text-align:right;" data-label="Actions" class="emp-record-actions">
                         <a href="{{ url_for('admin.exam_detail', exam_id=ex.id) }}" class="emp-btn-outline emp-btn-sm">View Details</a>
                     </td>
                 </tr>
@@ -180,7 +180,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Courses ({{ results.courses|length }})</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Code</th>
@@ -191,9 +191,9 @@
             <tbody>
                 {% for c in results.courses %}
                 <tr>
-                    <td><strong class="text-primary">{{ c.code }}</strong></td>
-                    <td>{{ c.name }}</td>
-                    <td><span class="emp-chip {% if c.status == 'active' %}g-chip-active{% else %}g-chip-inactive{% endif %}">{{ c.status }}</span></td>
+                    <td data-label="Code"><strong class="text-primary">{{ c.code }}</strong></td>
+                    <td data-label="Course Name">{{ c.name }}</td>
+                    <td data-label="Status"><span class="emp-chip {% if c.status == 'active' %}g-chip-active{% else %}g-chip-inactive{% endif %}">{{ c.status }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -210,7 +210,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Bookings ({{ results.bookings|length }})</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Ref #</th>
@@ -223,11 +223,11 @@
             <tbody>
                 {% for b in results.bookings %}
                 <tr>
-                    <td>#{{ b.id }}</td>
-                    <td>{{ b.student.name }} ({{ b.student.roll_no or "No Roll No" }})</td>
-                    <td>{{ b.examination.name }}</td>
-                    <td>{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
-                    <td><span class="emp-chip emp-chip-active">{{ b.status }}</span></td>
+                    <td data-label="Ref #">#{{ b.id }}</td>
+                    <td data-label="Student">{{ b.student.name }} ({{ b.student.roll_no or "No Roll No" }})</td>
+                    <td data-label="Exam">{{ b.examination.name }}</td>
+                    <td data-label="Slot Date">{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
+                    <td data-label="Status"><span class="emp-chip emp-chip-active">{{ b.status }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>

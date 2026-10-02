@@ -32,7 +32,7 @@
 
     {% if bookings %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Ref #</th>
@@ -47,32 +47,32 @@
             <tbody>
                 {% for b in bookings %}
                 <tr>
-                    <td><span class="text-muted">#{{ b.id }}</span></td>
-                    <td>
+                    <td data-label="Ref #"><span class="text-muted">#{{ b.id }}</span></td>
+                    <td data-label="Examination">
                         <span class="fw-medium">{{ b.examination.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.examination.course.code }} | {{ b.examination.type }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Date &amp; Time">
                         <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Examiner">
                         <span class="fw-medium">{{ b.slot.examiner.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ b.slot.examiner.examiner_profile.department if b.slot.examiner.examiner_profile and b.slot.examiner.examiner_profile.department else "Faculty" }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Reserved On">
                         <span style="font-size:0.8125rem;">{{ b.booking_date.strftime('%d %b %Y') }}</span>
                         {% if b.cancelled_at %}
                             <div class="text-danger" style="font-size:0.7rem;">Cancelled on {{ b.cancelled_at.strftime('%d %b %Y') }}</div>
                         {% endif %}
                     </td>
-                    <td>
+                    <td data-label="Status">
                         {% if b.status == 'Booked' %}
                             <span class="emp-chip emp-chip-active">Booked</span>
                         {% elif b.status == 'Cancelled' %}
@@ -81,7 +81,7 @@
                             <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         {% if b.status == 'Booked' %}
                             {% if b.examination.booking_end and now > b.examination.booking_end %}
                                 <span class="text-muted" style="font-size:0.8125rem;" title="Booking window has ended">Deadline passed</span>

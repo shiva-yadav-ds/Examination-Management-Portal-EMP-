@@ -111,7 +111,7 @@
     </div>
     {% if pending_evaluations %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Student</th>
@@ -123,13 +123,13 @@
             <tbody>
                 {% for b in pending_evaluations %}
                 <tr>
-                    <td>
+                    <td data-label="Student">
                         <span class="fw-medium">{{ b.student.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">{{ b.student.roll_no or 'No Roll No' }}</div>
                     </td>
-                    <td>{{ b.examination.name }}</td>
-                    <td>{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
-                    <td style="text-align:right;">
+                    <td data-label="Examination">{{ b.examination.name }}</td>
+                    <td data-label="Slot Date">{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="emp-btn-primary emp-btn-sm">
                             <i class="bi bi-pencil-square"></i> Evaluate
                         </a>

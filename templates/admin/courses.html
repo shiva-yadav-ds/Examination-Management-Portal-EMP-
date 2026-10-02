@@ -91,7 +91,7 @@
 
     {% if courses %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th style="width: 15%;">Course Code</th>
@@ -104,16 +104,16 @@
             <tbody>
                 {% for course in courses %}
                 <tr>
-                    <td>
+                    <td data-label="Course Code">
                         <strong class="text-primary" style="letter-spacing: 0.3px;">{{ course.code }}</strong>
                     </td>
-                    <td>
+                    <td data-label="Course Name">
                         <span class="fw-medium">{{ course.name }}</span>
                     </td>
-                    <td>
+                    <td data-label="Description">
                         <span class="text-emp-secondary">{{ course.description or "-" }}</span>
                     </td>
-                    <td>
+                    <td data-label="Status">
                         {% if course.status == 'active' %}
                             <span class="emp-chip emp-chip-active">
                                 <span class="emp-stat-dot" style="background-color: var(--emp-success-text); width: 5px; height: 5px;"></span>
@@ -126,7 +126,7 @@
                             </span>
                         {% endif %}
                     </td>
-                    <td style="text-align: right;">
+                    <td style="text-align: right;" data-label="Actions" class="emp-record-actions">
                         <div class="d-inline-flex gap-2">
                             <button
                                 type="button"

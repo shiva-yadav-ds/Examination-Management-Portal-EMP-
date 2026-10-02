@@ -65,7 +65,7 @@
         <!-- Rubric Breakdown Table -->
         {% if b.evaluations %}
         <div class="table-responsive">
-            <table class="emp-table">
+            <table class="emp-table emp-record-table" role="table">
                 <thead>
                     <tr>
                         <th>Criterion</th>
@@ -76,19 +76,19 @@
                 <tbody>
                     {% for ev in b.evaluations %}
                     <tr>
-                        <td style="max-width:300px;">
+                        <td style="max-width:300px;" data-label="Criterion">
                             <span class="fw-medium">{{ ev.rubric.criterion_name }}</span>
                             {% if ev.rubric.description %}
                             <div class="text-emp-secondary" style="font-size:0.75rem;">{{ ev.rubric.description }}</div>
                             {% endif %}
                         </td>
-<td>
+<td data-label="Score">
                              <span class="fw-bold">{{ ev.marks }}</span> / {{ ev.rubric.max_marks }}
                              {% if ev.rubric.weightage %}
                              <span class="text-emp-secondary ms-1" style="font-size:0.75rem;">(Weightage {{ "%.0f"|format(ev.rubric.weightage) }}%)</span>
                              {% endif %}
                          </td>
-                        <td>
+                        <td data-label="Remarks &amp; Feedback">
                             {% if ev.remarks %}
                                 <span class="text-dark">{{ ev.remarks }}</span>
                             {% else %}

@@ -13,6 +13,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from extensions import db
 from models import ExaminerProfile, User
 
+# Public authentication controller. It owns the first browser interaction:
+# registration/login writes or reads User records, then Flask-Login stores an
+# authenticated session. It intentionally has no URL prefix because /login and
+# /register/* are public entry URLs used before any role-specific portal exists.
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -31,8 +35,13 @@ def index():
     return redirect(url_for("auth.login"))
 
 
-# Handles user login for all roles (admin, examiner, student).
-# Validates credentials, checks account active status, and sets a 3-day persistent session.
+# Handles the common login entry point for all three roles.
+#
+# Request path: templates/auth/login.html POSTs ``email`` and ``password`` ->
+# User is read from the users table -> the stored password hash is verified ->
+# Flask-Login writes the user id to the signed session cookie -> this function
+# redirects to the dashboard selected by ``user.role``. Future protected
+# requests reload that user through app.load_user before decorators run.
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -51,7 +60,8 @@ def login():
             flash("Your account is not active.", "warning")
             return render_template("auth/login.html")
 
-        # Configure 3-day persistent session cookie
+        # Configure session lifetime from Config, then let Flask-Login remember
+        # only this user's id. Passwords are never put in a browser cookie.
         session.permanent = True
         login_user(user, remember=True)
 
@@ -73,8 +83,9 @@ def logout():
     return redirect(url_for("auth.login"))
 
 
-# Public registration for students.
-# Creates an active account immediately without requiring admin approval.
+# Public student registration. The form posts directly here; this server-
+# rendered flow has no separate API layer. On success it creates one User row
+# with role=student/status=active, saves a password hash, and redirects to login.
 @auth_bp.route("/register/student", methods=["GET", "POST"])
 def register_student():
     if request.method == "POST":
@@ -111,9 +122,11 @@ def register_student():
     return render_template("auth/register_student.html")
 
 
-# Public registration for examiners.
-# Creates an account with status 'pending' and attaches an ExaminerProfile row.
-# The examiner cannot log in until an administrator approves the account.
+# Public examiner registration. This request writes two connected rows: User
+# stores shared identity/authentication data and ExaminerProfile stores faculty
+# metadata. ``flush()`` obtains user.id before commit so the profile foreign key
+# can point at it. The pending status makes auth.login reject the account until
+# admin.approve_examiner changes it to active.
 @auth_bp.route("/register/examiner", methods=["GET", "POST"])
 def register_examiner():
     if request.method == "POST":

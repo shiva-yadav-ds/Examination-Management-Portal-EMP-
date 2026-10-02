@@ -56,7 +56,7 @@
 
     {% if bookings %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Roll Number</th>
@@ -70,18 +70,18 @@
             <tbody>
                 {% for b in bookings %}
                 <tr>
-                    <td><strong class="text-primary">{{ b.student.roll_no or '-' }}</strong></td>
-                    <td><span class="fw-medium">{{ b.student.name }}</span></td>
-                    <td><span class="text-emp-secondary">{{ b.student.email }}</span></td>
-                    <td><span style="font-size:0.8125rem;">{{ b.booking_date.strftime('%d %b %Y') }}</span></td>
-                    <td>
+                    <td data-label="Roll Number"><strong class="text-primary">{{ b.student.roll_no or '-' }}</strong></td>
+                    <td data-label="Name"><span class="fw-medium">{{ b.student.name }}</span></td>
+                    <td data-label="Email"><span class="text-emp-secondary">{{ b.student.email }}</span></td>
+                    <td data-label="Booked On"><span style="font-size:0.8125rem;">{{ b.booking_date.strftime('%d %b %Y') }}</span></td>
+                    <td data-label="Status">
                         {% if b.status == 'Completed' %}
                             <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Evaluated</span>
                         {% else %}
                             <span class="emp-chip emp-chip-active">Booked</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         {% if can_evaluate %}
                             {% if b.status == 'Booked' %}
                                 <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="emp-btn-primary emp-btn-sm">

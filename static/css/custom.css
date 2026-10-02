@@ -1022,10 +1022,10 @@ h3, .h3 {
     }
 
     /* Force single column forms on mobile */
-    .row.g-3 > [class*="col-md-"],
-    .row.g-3 > [class*="col-lg-"],
-    .row.g-2 > [class*="col-md-"],
-    .row.g-2 > [class*="col-lg-"] {
+    form .row.g-3 > [class*="col-md-"],
+    form .row.g-3 > [class*="col-lg-"],
+    form .row.g-2 > [class*="col-md-"],
+    form .row.g-2 > [class*="col-lg-"] {
         width: 100%;
         flex: 0 0 100%;
         max-width: 100%;
@@ -1365,6 +1365,7 @@ h3, .h3 {
     }
 }
 
+
 /* Print styles */
 @media print {
     .emp-navbar,
@@ -1659,19 +1660,20 @@ h3, .h3 {
     }
 
     /* Page headers */
-    .d-flex.align-items-start.justify-content-between,
-    .d-flex.align-items-center.justify-content-between {
+    main > .d-flex.align-items-start.justify-content-between,
+    main > .d-flex.align-items-center.justify-content-between,
+    .emp-card > .p-3.d-flex.justify-content-between {
         flex-direction: column;
         align-items: flex-start !important;
         gap: 1rem;
     }
 
-    .d-flex.align-items-start.justify-content-between > *,
-    .d-flex.align-items-center.justify-content-between > * {
+    main > .d-flex.align-items-start.justify-content-between > *,
+    main > .d-flex.align-items-center.justify-content-between > * {
         width: 100%;
     }
 
-    .d-flex.flex-wrap.align-items-center.justify-content-between {
+    main > .d-flex.flex-wrap.align-items-center.justify-content-between {
         flex-direction: column;
         align-items: flex-start !important;
     }
@@ -1693,9 +1695,10 @@ h3, .h3 {
         margin-bottom: 0.5rem;
     }
 
-    /* Stat cards grid */
+    /* Bootstrap uses gutters rather than flex gap for its column grid. */
     .row.g-3 {
-        gap: 0.75rem !important;
+        --bs-gutter-x: 0.75rem;
+        --bs-gutter-y: 0.75rem;
     }
 
     .row.g-3 > [class*="col-"] {
@@ -1796,22 +1799,483 @@ h3, .h3 {
    ========================================================================== */
 
 @media (max-width: 575px) {
-    /* Stack button groups vertically */
-    .d-flex.gap-2.align-items-center {
-        flex-direction: column;
-        align-items: stretch !important;
-    }
-
-    .d-flex.gap-2 > .emp-btn-primary,
-    .d-flex.gap-2 > .emp-btn-outline,
-    .d-flex.gap-2 > .emp-btn-danger,
-    .d-flex.gap-2 > button,
-    .d-flex.gap-2 > a {
+    main .d-flex.gap-2 > .emp-btn-primary,
+    main .d-flex.gap-2 > .emp-btn-outline,
+    main .d-flex.gap-2 > .emp-btn-danger,
+    main .d-flex.gap-2 > button,
+    main .d-flex.gap-2 > a {
         width: 100%;
     }
 
     /* Full width primary actions */
     .emp-btn-primary:not(.emp-btn-sm):not(.emp-action-btn) {
         width: 100%;
+    }
+}
+
+/* ==========================================================================
+   Responsive layout cleanup
+   These focused overrides keep the desktop design intact while making the
+   shared shell and data-heavy pages stable on phones and tablets.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img,
+svg {
+    max-width: 100%;
+}
+
+.emp-card,
+.emp-stat-card,
+.emp-auth-card,
+.emp-navbar-start,
+.emp-navbar-actions,
+.emp-exam-card,
+.emp-table-container {
+    min-width: 0;
+}
+
+@media (max-width: 1199px) {
+    .emp-mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .emp-navbar {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .emp-navbar {
+        min-height: 64px;
+        padding: 0.75rem 1rem;
+        flex-wrap: nowrap;
+        flex-direction: row;
+        align-items: center !important;
+        gap: 0.75rem;
+    }
+
+    .emp-navbar-start {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+    }
+
+    .emp-navbar-brand {
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    .emp-navbar-actions {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        flex-direction: row;
+        align-items: center !important;
+        width: auto;
+    }
+
+    .emp-mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+    }
+
+    .emp-mobile-nav {
+        top: 64px;
+        max-height: calc(100vh - 64px);
+    }
+
+    main.container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        overflow-x: visible;
+    }
+
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overscroll-behavior-inline: contain;
+    }
+
+    .emp-table {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .emp-table:has(thead th:nth-child(5)) {
+        min-width: 42rem;
+    }
+
+    .emp-card form .row > [class*="col-md-"] {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .emp-user-badge {
+        max-width: 18rem;
+    }
+
+    .emp-user-badge > span:first-of-type {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .emp-user-badge .emp-chip {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .emp-navbar {
+        min-height: 57px;
+        padding: 0.625rem 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .emp-navbar-start {
+        gap: 0.5rem !important;
+    }
+
+    .emp-navbar-actions {
+        gap: 0.375rem !important;
+    }
+
+    .emp-navbar-actions > .emp-btn-sm {
+        width: auto;
+        flex: 0 0 auto;
+    }
+
+    .row.g-3 {
+        gap: 0 !important;
+    }
+
+    .row > [class*="col-"] {
+        min-width: 0;
+    }
+
+    .row > [class*="col-"] .emp-stat-card {
+        margin-bottom: 0;
+    }
+
+    .emp-stat-dot {
+        flex-shrink: 0;
+    }
+
+    .emp-card form .row > [class*="col-"] {
+        margin-bottom: 0;
+    }
+
+    .emp-auth-wrapper {
+        min-height: 0;
+        padding: 1rem 0;
+    }
+
+    .emp-stat-header,
+    h1, .h1, h2, .h2, h3, .h3 {
+        overflow-wrap: anywhere;
+    }
+
+    .emp-card .d-inline-flex.gap-2,
+    .emp-card .d-flex.gap-2 {
+        flex-wrap: wrap;
+    }
+
+    .emp-card .d-flex.gap-2 > i {
+        flex-shrink: 0;
+        width: auto;
+    }
+
+    .emp-btn-primary,
+    .emp-btn-outline,
+    .emp-btn-danger,
+    .emp-btn-danger-outline {
+        max-width: 100%;
+        white-space: normal;
+        justify-content: center;
+    }
+
+    .emp-mobile-nav {
+        top: 57px;
+        max-height: calc(100vh - 57px);
+    }
+
+    main.container {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .emp-card {
+        margin-bottom: 1rem;
+    }
+
+    .emp-card.p-0 .table-responsive {
+        border-radius: 0;
+    }
+
+    .emp-table {
+        min-width: 100%;
+    }
+
+    .emp-table:has(thead th:nth-child(5)) {
+        min-width: 38rem;
+    }
+
+    .emp-table th,
+    .emp-table td {
+        padding: 0.75rem;
+    }
+
+    .emp-exam-card-header,
+    .emp-mobile-card-header {
+        gap: 0.625rem;
+    }
+
+    .emp-exam-card-title,
+    .emp-mobile-card-title,
+    .text-emp-secondary,
+    .emp-toast-message {
+        overflow-wrap: anywhere;
+    }
+
+    .emp-exam-card-header > :first-child,
+    .emp-mobile-card-header > :first-child {
+        min-width: 0;
+    }
+
+    .emp-exam-card-header .emp-phase-badge {
+        flex: 0 1 auto;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .emp-toast-stack {
+        top: 4.25rem;
+        right: 0.75rem;
+        width: calc(100vw - 1.5rem);
+    }
+
+    .modal-dialog {
+        margin: 0.75rem;
+        max-width: calc(100% - 1.5rem);
+    }
+
+    .modal-body .d-flex.justify-content-center.gap-2 {
+        flex-wrap: wrap;
+    }
+
+    .modal-body .d-flex.justify-content-center.gap-2 > * {
+        flex: 1 1 12rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .emp-navbar-brand {
+        font-size: 0.95rem;
+    }
+
+    .emp-navbar-actions .emp-btn-sm,
+    .emp-mobile-menu-toggle {
+        min-width: 2.25rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .emp-exam-card-header,
+    .emp-mobile-card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .emp-exam-card-header .emp-phase-badge,
+    .emp-mobile-card-header .emp-chip {
+        align-self: flex-start;
+    }
+}
+
+/* Labeled records replace wide tables on phones and tablets. The original
+   cells and forms remain in the DOM, so actions and inline editors are shared
+   with the desktop view rather than maintained as duplicate mobile markup. */
+@media (max-width: 1199px) {
+    .table-responsive:has(.emp-record-table) {
+        overflow: visible;
+        margin-bottom: 0;
+    }
+
+    .emp-record-table,
+    .emp-record-table:has(thead th:nth-child(5)) {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .emp-record-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .emp-record-table tbody {
+        display: block;
+    }
+
+    .emp-record-table tbody > tr:not(.collapse):not(.collapsing) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--emp-border);
+    }
+
+    .emp-record-table tbody > tr:last-child {
+        border-bottom: 0;
+    }
+
+    .emp-record-table td {
+        display: block;
+        min-width: 0;
+        max-width: none !important;
+        padding: 0;
+        border: 0;
+        text-align: left !important;
+        overflow-wrap: anywhere;
+    }
+
+    .emp-record-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--emp-text-secondary);
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .emp-record-table td:first-child,
+    .emp-record-table td[data-label="Name"],
+    .emp-record-table td[data-label="Course Name"],
+    .emp-record-table td[data-label="Examination"],
+    .emp-record-table td[data-label="Exam Name"],
+    .emp-record-table td[data-label="Exam"],
+    .emp-record-table td[data-label="Description"],
+    .emp-record-table td[data-label="Email"],
+    .emp-record-table td[data-label="Email Address"],
+    .emp-record-table td[data-label="Remarks & Feedback"],
+    .emp-record-table td[data-label="Rubric Breakdown"],
+    .emp-record-table td.emp-record-actions {
+        grid-column: 1 / -1;
+    }
+
+    .emp-record-table td:first-child > .fw-medium,
+    .emp-record-table td:first-child > strong {
+        font-size: 1rem;
+        font-weight: 600 !important;
+    }
+
+    .emp-record-table td.emp-record-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--emp-border-subtle);
+    }
+
+    .emp-record-table td.emp-record-actions::before {
+        flex-basis: 100%;
+        margin-bottom: 0;
+    }
+
+    .emp-record-actions > .d-inline-flex,
+    .emp-record-actions > .d-flex {
+        display: flex !important;
+        flex-wrap: wrap;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .emp-record-actions form {
+        display: inline-flex !important;
+        min-width: 0;
+    }
+
+    .emp-record-actions :is(a, button)[class*="emp-"] {
+        min-height: 40px;
+        min-width: 0;
+        width: auto;
+        white-space: normal;
+        justify-content: center;
+        font-size: 0.8125rem;
+    }
+
+    .emp-record-table tbody > tr.collapse.show,
+    .emp-record-table tbody > tr.collapsing {
+        display: block;
+        width: 100%;
+    }
+
+    .emp-record-table td[colspan] {
+        width: 100%;
+        padding: 1rem !important;
+    }
+
+    .emp-record-table tbody tr:hover td {
+        background: transparent;
+    }
+
+    .emp-record-table :is(input, select, textarea) {
+        min-width: 0;
+        max-width: 100% !important;
+    }
+
+    .emp-record-table form.d-flex {
+        flex-wrap: wrap;
+    }
+
+    .emp-record-table form.d-flex > select {
+        flex-basis: 100%;
+    }
+
+    /* Long identifiers must shrink within summaries and profile detail rows. */
+    .emp-card.d-flex > div,
+    .emp-card .d-flex > span,
+    .emp-card .d-flex > strong {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .emp-card .d-flex > i {
+        flex-shrink: 0;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .emp-record-table tbody > tr:not(.collapse):not(.collapsing) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 359px) {
+    .emp-record-table tbody > tr:not(.collapse):not(.collapsing) {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1rem;
     }
 }

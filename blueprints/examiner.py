@@ -30,6 +30,10 @@ from utils import (
     is_slot_creation_visible_to_examiners,
 )
 
+# Examiner controller. It reads the admin-configured Examination/Rubric data,
+# creates only the current examiner's ExamSlots, and writes Evaluation rows for
+# students booked into those slots. Ownership checks in slot_students() and
+# evaluate() prevent one examiner from viewing or grading another's slot.
 examiner_bp = Blueprint(
     "examiner",
     __name__,

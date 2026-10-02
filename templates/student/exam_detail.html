@@ -74,7 +74,7 @@
         <h3 class="h3 mb-0" style="font-size:1rem;">Evaluation Criteria</h3>
     </div>
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Criterion</th>
@@ -86,10 +86,10 @@
             <tbody>
                 {% for r in exam.rubrics %}
                 <tr>
-                    <td><span class="fw-medium">{{ r.criterion_name }}</span></td>
-                    <td>{{ r.max_marks }}</td>
-                    <td>{{ "%.0f%%"|format(r.weightage) if r.weightage else '-' }}</td>
-                    <td><span class="text-emp-secondary">{{ r.description or '-' }}</span></td>
+                    <td data-label="Criterion"><span class="fw-medium">{{ r.criterion_name }}</span></td>
+                    <td data-label="Max Marks">{{ r.max_marks }}</td>
+                    <td data-label="Weightage">{{ "%.0f%%"|format(r.weightage) if r.weightage else '-' }}</td>
+                    <td data-label="Description"><span class="text-emp-secondary">{{ r.description or '-' }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -146,7 +146,7 @@
 
     {% if slots %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Date</th>
@@ -159,18 +159,18 @@
             <tbody>
                 {% for slot in slots %}
                 <tr>
-                    <td><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
-                    <td>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
-                    <td>
+                    <td data-label="Date"><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
+                    <td data-label="Time">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
+                    <td data-label="Examiner">
                         <span class="fw-medium">{{ slot.examiner.name }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">
                             {{ slot.examiner.examiner_profile.department if slot.examiner.examiner_profile and slot.examiner.examiner_profile.department else "Faculty" }}
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Seats Available">
                         <span class="fw-medium">{{ slot.available_seats }}</span> / {{ slot.capacity }} seats left
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         {% if active_booking %}
                             <button class="emp-btn-outline emp-btn-sm" disabled title="You already have a booked slot">
                                 Booked

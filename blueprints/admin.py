@@ -44,6 +44,11 @@ from utils import (
     is_slot_creation_open,
 )
 
+# Admin controller for creating the data that other roles consume. A Course
+# leads to an Examination, an Examination owns Rubrics and ExamSlots, and the
+# final lifecycle actions inspect Bookings/Evaluations. Every route below is
+# protected by both Flask-Login and role_required("admin") before it can change
+# those shared records.
 admin_bp = Blueprint(
     "admin",
     __name__,

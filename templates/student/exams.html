@@ -68,7 +68,7 @@
 
     {% if exams %}
     <div class="table-responsive">
-        <table class="emp-table">
+        <table class="emp-table emp-record-table" role="table">
             <thead>
                 <tr>
                     <th>Examination</th>
@@ -83,24 +83,24 @@
             <tbody>
                 {% for exam in exams %}
                 <tr>
-                    <td>
+                    <td data-label="Examination">
                         <span class="fw-medium">{{ exam.name }}</span>
                     </td>
-                    <td>
+                    <td data-label="Course">
                         <span class="text-primary fw-medium" style="letter-spacing:0.3px;">{{ exam.course.code }}</span>
                         <div class="text-emp-secondary" style="font-size:0.75rem;">{{ exam.course.name }}</div>
                     </td>
-                    <td>{{ exam.type }}</td>
-                    <td>{{ exam.duration }} min</td>
-                    <td>{{ exam.max_marks }}</td>
-                    <td>
+                    <td data-label="Type">{{ exam.type }}</td>
+                    <td data-label="Duration">{{ exam.duration }} min</td>
+                    <td data-label="Max Marks">{{ exam.max_marks }}</td>
+                    <td data-label="Booking Deadline">
                         {% if exam.booking_end %}
                             <span style="font-size:0.8125rem;">{{ exam.booking_end.strftime('%d %b %Y, %H:%M') }}</span>
                         {% else %}
                             <span class="text-muted">-</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right;" data-label="Action" class="emp-record-actions">
                         {% if exam.id in active_booked_exam_ids %}
                             <span class="emp-chip emp-chip-active me-2">Already Booked</span>
                             <a href="{{ url_for('student.exam_detail', exam_id=exam.id) }}" class="emp-btn-outline emp-btn-sm">
