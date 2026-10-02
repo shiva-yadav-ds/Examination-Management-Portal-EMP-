@@ -1,0 +1,22 @@
+{# 404.html - Not found error page.
+   Displayed when a requested URL or resource does not exist on the portal. #}
+{% extends "base.html" %}
+
+{% block title %}404 Not Found - EMP{% endblock %}
+
+{% block content %}
+<div class="emp-card p-5 text-center mx-auto my-5" style="max-width:540px;">
+    <div class="mb-3">
+        <i class="bi bi-question-circle display-3 text-emp-secondary"></i>
+    </div>
+    <h1 class="h2 mb-2">Page Not Found (404)</h1>
+    <p class="text-emp-secondary mb-4">
+        The requested URL was not found on this server. Check your link address or return to the portal home.
+    </p>
+    <div class="d-flex justify-content-center">
+        <a href="{{ url_for('auth.index') }}" class="emp-btn-primary">
+            Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

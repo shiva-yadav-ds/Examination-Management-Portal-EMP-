@@ -1,0 +1,149 @@
+{# student/bookings.html - Student reservation history.
+   Lists all past and active bookings with cancellation action before deadline. Route: student.bookings #}
+{% extends "base.html" %}
+
+{% block title %}My Bookings - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Bookings</li>
+            </ol>
+        </nav>
+        <h1>My Exam Bookings</h1>
+        <p class="text-emp-secondary mb-0">Review all your past and active examination reservations.</p>
+    </div>
+    <a href="{{ url_for('student.exams') }}" class="emp-btn-primary">
+        <i class="bi bi-search"></i> Browse Exams
+    </a>
+</div>
+
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-calendar2-check text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Reservation History ({{ bookings|length }})</h2>
+        </div>
+    </div>
+
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Ref #</th>
+                    <th>Examination</th>
+                    <th>Date & Time</th>
+                    <th>Examiner</th>
+                    <th>Reserved On</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><span class="text-muted">#{{ b.id }}</span></td>
+                    <td>
+                        <span class="fw-medium">{{ b.examination.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.examination.course.code }} | {{ b.examination.type }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ b.slot.examiner.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.slot.examiner.examiner_profile.department if b.slot.examiner.examiner_profile and b.slot.examiner.examiner_profile.department else "Faculty" }}
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size:0.8125rem;">{{ b.booking_date.strftime('%d %b %Y') }}</span>
+                        {% if b.cancelled_at %}
+                            <div class="text-danger" style="font-size:0.7rem;">Cancelled on {{ b.cancelled_at.strftime('%d %b %Y') }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.status == 'Booked' %}
+                            <span class="emp-chip emp-chip-active">Booked</span>
+                        {% elif b.status == 'Cancelled' %}
+                            <span class="emp-chip emp-chip-inactive">Cancelled</span>
+                        {% elif b.status == 'Completed' %}
+                            <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        {% if b.status == 'Booked' %}
+                            {% if b.examination.booking_end and now > b.examination.booking_end %}
+                                <span class="text-muted" style="font-size:0.8125rem;" title="Booking window has ended">Deadline passed</span>
+                            {% else %}
+                                <button type="button" class="emp-btn-danger-outline" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ b.id }}">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </button>
+
+                                <!-- Cancel Confirmation Modal -->
+                                <div class="modal fade" id="cancelModal-{{ b.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ b.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+                                        <div class="modal-content text-start" style="border-radius: var(--radius-md); border: 1px solid var(--emp-border); box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
+                                            <div class="modal-body p-4 text-center">
+                                                <div class="mb-3">
+                                                    <span class="d-inline-flex align-items-center justify-content-center"
+                                                          style="width: 56px; height: 56px; border-radius: 50%; background: #fdf2f2; color: #d93025; font-size: 1.5rem; border: 1px solid #fad2cf;">
+                                                        <i class="bi bi-exclamation-triangle"></i>
+                                                    </span>
+                                                </div>
+                                                <h3 class="h3 mb-2" id="cancelModalLabel-{{ b.id }}" style="font-size: 1.15rem;">Cancel Examination Booking?</h3>
+                                                <p class="text-emp-secondary mb-3" style="font-size: 0.875rem;">
+                                                    Are you sure you want to cancel your reservation for <strong>{{ b.examination.name }}</strong> on <strong>{{ b.slot.exam_date.strftime('%d %b %Y') }}</strong> ({{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }})?
+                                                </p>
+                                                <div class="p-2 mb-4 rounded text-start" style="background: #fafbfc; border: 1px solid var(--emp-border); font-size: 0.8125rem;">
+                                                    <i class="bi bi-info-circle text-primary me-1"></i>
+                                                    Your reserved seat will be immediately released back to the open pool for other candidates.
+                                                </div>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button type="button" class="emp-btn-outline" data-bs-dismiss="modal">
+                                                        Keep My Booking
+                                                    </button>
+                                                    <form method="POST" action="{{ url_for('student.cancel_booking', booking_id=b.id) }}" style="display:inline;">
+                                                        <button type="submit" class="emp-btn-danger">
+                                                            <i class="bi bi-x-circle me-1"></i> Confirm Cancellation
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% elif b.status == 'Completed' and b.examination.results_published %}
+                            <a href="{{ url_for('student.results') }}" class="emp-btn-outline emp-btn-sm">
+                                View Result
+                            </a>
+                        {% else %}
+                            <span class="text-muted" style="font-size:0.8125rem;">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-journal-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-2">You haven't booked any examinations yet.</p>
+        <a href="{{ url_for('student.exams') }}" class="emp-btn-primary emp-btn-sm">Browse Available Exams</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

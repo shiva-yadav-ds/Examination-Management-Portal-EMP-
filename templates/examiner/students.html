@@ -1,0 +1,112 @@
+{# examiner/students.html - Candidates booked for a specific slot.
+   Lists registered students and provides links to grade their performance. Route: examiner.slot_students #}
+{% extends "base.html" %}
+
+{% block title %}Booked Students - {{ slot.examination.name }}{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.slots') }}" class="text-decoration-none">My Slots</a></li>
+            <li class="breadcrumb-item active">Booked Students</li>
+        </ol>
+    </nav>
+    <h1>{{ slot.examination.name }}</h1>
+    <p class="text-emp-secondary mb-0">
+        {{ slot.exam_date.strftime('%d %b %Y') }},
+        {{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}
+        ({{ slot.examination.duration }} min)
+    </p>
+</div>
+
+<div class="emp-card mb-4 py-2 px-3 d-flex flex-wrap gap-4">
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Course</div>
+        <div class="fw-medium">{{ slot.examination.course.code }} - {{ slot.examination.course.name }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Seats</div>
+        <div class="fw-medium">{{ slot.available_seats }} available / {{ slot.capacity }} total</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Max Marks</div>
+        <div class="fw-medium">{{ slot.examination.max_marks }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Rubrics</div>
+        <div class="fw-medium">{{ slot.examination.rubrics|length }} criteria</div>
+    </div>
+    {% if not slot_started %}
+    <div class="ms-auto d-flex align-items-center">
+        <span class="emp-chip emp-chip-pending">
+            <i class="bi bi-clock me-1"></i> Slot is on {{ slot.exam_date.strftime('%d %b %Y') }} - you can still evaluate booked students
+        </span>
+    </div>
+    {% endif %}
+</div>
+
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-people text-secondary"></i>
+        <h2 class="h2 mb-0" style="font-size:1.1rem;">Booked Students ({{ bookings|length }})</h2>
+    </div>
+
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Booked On</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><strong class="text-primary">{{ b.student.roll_no or '-' }}</strong></td>
+                    <td><span class="fw-medium">{{ b.student.name }}</span></td>
+                    <td><span class="text-emp-secondary">{{ b.student.email }}</span></td>
+                    <td><span style="font-size:0.8125rem;">{{ b.booking_date.strftime('%d %b %Y') }}</span></td>
+                    <td>
+                        {% if b.status == 'Completed' %}
+                            <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Evaluated</span>
+                        {% else %}
+                            <span class="emp-chip emp-chip-active">Booked</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        {% if can_evaluate %}
+                            {% if b.status == 'Booked' %}
+                                <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="emp-btn-primary emp-btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Evaluate
+                                </a>
+                            {% elif b.status == 'Completed' %}
+                                <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="emp-btn-outline emp-btn-sm">
+                                    <i class="bi bi-eye"></i> Review / Update
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted" style="font-size:0.8125rem;">Not yet</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-person-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No students have booked this slot yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

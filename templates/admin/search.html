@@ -1,0 +1,246 @@
+{# admin/search.html - Unified global search results.
+   Displays matches across courses, exams, examiners, students, and bookings. Route: admin.search #}
+{% extends "base.html" %}
+
+{% block title %}Search EMP Portal - Admin{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+            <li class="breadcrumb-item active">Search</li>
+        </ol>
+    </nav>
+    <h1>Unified Portal Search</h1>
+    <p class="text-emp-secondary mb-0">Search candidates, faculty, scheduled examinations, courses, and reservations across EMP.</p>
+</div>
+
+<!-- Search Input Card -->
+<div class="emp-card mb-4 p-4">
+    <form method="GET" action="{{ url_for('admin.search') }}">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <input
+                    type="text"
+                    class="emp-input"
+                    name="q"
+                    value="{{ q or '' }}"
+                    placeholder="Enter keywords: student name, roll no, examiner, exam name, course code..."
+                    required
+                    style="font-size:1rem; padding:0.75rem 1rem;"
+                >
+            </div>
+            <div class="col-md-2">
+                <select class="emp-input emp-select" name="type" style="padding:0.75rem 0.85rem;">
+                    <option value="all" {% if search_type == 'all' %}selected{% endif %}>All Entities</option>
+                    <option value="student" {% if search_type == 'student' %}selected{% endif %}>Students</option>
+                    <option value="examiner" {% if search_type == 'examiner' %}selected{% endif %}>Examiners</option>
+                    <option value="exam" {% if search_type == 'exam' %}selected{% endif %}>Examinations</option>
+                    <option value="course" {% if search_type == 'course' %}selected{% endif %}>Courses</option>
+                    <option value="booking" {% if search_type == 'booking' %}selected{% endif %}>Bookings</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="emp-btn-primary w-100" style="padding:0.75rem 1rem;">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Area -->
+{% if q %}
+<div class="mb-3 d-flex align-items-center justify-content-between">
+    <h2 class="h2 mb-0" style="font-size:1.15rem;">
+        Search Results for &ldquo;<strong>{{ q }}</strong>&rdquo;
+    </h2>
+    <span class="text-emp-secondary">{{ total_count }} result{{ 's' if total_count != 1 else '' }} found</span>
+</div>
+
+{% if total_count == 0 %}
+<div class="emp-card p-5 text-center text-emp-secondary">
+    <i class="bi bi-search display-5 d-block mb-3 text-muted"></i>
+    <h3 class="h3 mb-1">No matching results</h3>
+    <p class="mb-0">Try different search terms or select "All Entities" in the filter.</p>
+</div>
+{% endif %}
+
+<!-- Students Matches -->
+{% if results.students %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-mortarboard text-primary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Students ({{ results.students|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in results.students %}
+                <tr>
+                    <td><strong class="text-primary">{{ st.roll_no or "-" }}</strong></td>
+                    <td><span class="fw-medium">{{ st.name }}</span></td>
+                    <td>{{ st.email }}</td>
+                    <td><span class="emp-chip emp-chip-active">Active</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Examiners Matches -->
+{% if results.examiners %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-person-check text-primary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Examiners ({{ results.examiners|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ex in results.examiners %}
+                <tr>
+                    <td><span class="fw-medium">{{ ex.name }}</span></td>
+                    <td>{{ ex.email }}</td>
+                    <td>{{ ex.examiner_profile.department if ex.examiner_profile and ex.examiner_profile.department else "-" }}</td>
+                    <td>
+                        <span class="emp-chip {% if ex.status == 'active' %}g-chip-active{% elif ex.status == 'pending' %}g-chip-pending{% else %}g-chip-inactive{% endif %}">
+                            {{ ex.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Examinations Matches -->
+{% if results.exams %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-journal-check text-primary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Examinations ({{ results.exams|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ex in results.exams %}
+                <tr>
+                    <td><span class="fw-medium">{{ ex.name }}</span></td>
+                    <td><span class="text-primary">{{ ex.course.code }}</span></td>
+                    <td>{{ ex.type }}</td>
+                    <td><span class="emp-chip emp-chip-active">{{ ex.status }}</span></td>
+                    <td style="text-align:right;">
+                        <a href="{{ url_for('admin.exam_detail', exam_id=ex.id) }}" class="emp-btn-outline emp-btn-sm">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Courses Matches -->
+{% if results.courses %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-book text-primary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Courses ({{ results.courses|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Course Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in results.courses %}
+                <tr>
+                    <td><strong class="text-primary">{{ c.code }}</strong></td>
+                    <td>{{ c.name }}</td>
+                    <td><span class="emp-chip {% if c.status == 'active' %}g-chip-active{% else %}g-chip-inactive{% endif %}">{{ c.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Bookings Matches -->
+{% if results.bookings %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-calendar2-check text-primary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Bookings ({{ results.bookings|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Ref #</th>
+                    <th>Student</th>
+                    <th>Exam</th>
+                    <th>Slot Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in results.bookings %}
+                <tr>
+                    <td>#{{ b.id }}</td>
+                    <td>{{ b.student.name }} ({{ b.student.roll_no or "No Roll No" }})</td>
+                    <td>{{ b.examination.name }}</td>
+                    <td>{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
+                    <td><span class="emp-chip emp-chip-active">{{ b.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="emp-card p-5 text-center text-emp-secondary">
+    <i class="bi bi-search display-6 d-block mb-3 text-muted"></i>
+    <p class="mb-0">Type a query above to search students, examiners, exams, or bookings across the portal.</p>
+</div>
+{% endif %}
+
+{% endblock %}

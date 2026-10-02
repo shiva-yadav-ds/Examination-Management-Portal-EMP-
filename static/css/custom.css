@@ -1,0 +1,1817 @@
+/* ==========================================================================
+   EMP Design System - EMP Clean Design
+   2-3 Core Colors: Brand Blue (#1a73e8), Dark Gray (#202124), Light Surface (#f8fafd / #ffffff)
+   ========================================================================== */
+
+:root {
+    --emp-blue: #1a73e8;
+    --emp-blue-hover: #1557b0;
+    --emp-blue-subtle: #e8f0fe;
+    --emp-text-primary: #202124;
+    --emp-text-secondary: #5f6368;
+    --emp-text-muted: #80868b;
+    --emp-surface-bg: #f8fafd;
+    --emp-surface-card: #ffffff;
+    --emp-border: #dadce0;
+    --emp-border-subtle: #f1f3f4;
+    --emp-success-bg: #e6f4ea;
+    --emp-success-text: #137333;
+    --emp-warning-bg: #fef7e0;
+    --emp-warning-text: #b06000;
+    --emp-danger-bg: #fce8e6;
+    --emp-danger-text: #c5221f;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-pill: 9999px;
+    --shadow-subtle: 0 1px 2px 0 rgba(60,64,67,0.1), 0 1px 3px 1px rgba(60,64,67,0.06);
+    --shadow-hover: 0 1px 3px 0 rgba(60,64,67,0.2), 0 4px 8px 3px rgba(60,64,67,0.1);
+}
+
+body {
+    font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--emp-text-primary);
+    background-color: var(--emp-surface-bg);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Header & Navbar (EMP Design)
+   ========================================================================== */
+.emp-navbar {
+    background-color: var(--emp-surface-card);
+    border-bottom: 1px solid var(--emp-border);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.emp-navbar-brand {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--emp-text-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emp-navbar-brand .brand-logo-text {
+    color: var(--emp-blue);
+    font-weight: 600;
+    letter-spacing: -0.2px;
+}
+
+.emp-nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--emp-text-secondary);
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.emp-nav-link:hover, .emp-nav-link.active {
+    color: var(--emp-blue);
+    background-color: var(--emp-blue-subtle);
+}
+
+.emp-user-badge {
+    background-color: var(--emp-surface-bg);
+    border: 1px solid var(--emp-border);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    color: var(--emp-text-secondary);
+}
+
+/* ==========================================================================
+   Typography & Headers
+   ========================================================================== */
+h1, .h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    color: var(--emp-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+h2, .h2 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--emp-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+h3, .h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--emp-text-primary);
+}
+
+.text-emp-secondary {
+    color: var(--emp-text-secondary) !important;
+    font-size: 0.9375rem;
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+.emp-card {
+    background-color: var(--emp-surface-card);
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.emp-card-hover:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: #c0c4c9;
+}
+
+/* Stat Metric Card */
+.emp-stat-card {
+    background-color: var(--emp-surface-card);
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.emp-stat-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+.emp-stat-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--emp-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.emp-stat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--emp-blue);
+    display: inline-block;
+}
+
+.emp-stat-value {
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: var(--emp-text-primary);
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+}
+
+.emp-stat-subtext {
+    font-size: 0.8125rem;
+    color: var(--emp-text-muted);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.emp-btn-primary {
+    background-color: var(--emp-blue);
+    color: #ffffff !important;
+    border: 1px solid var(--emp-blue);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.emp-btn-primary:hover {
+    background-color: var(--emp-blue-hover);
+    border-color: var(--emp-blue-hover);
+    color: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(60,64,67,0.3);
+}
+
+.emp-btn-outline {
+    background-color: transparent;
+    color: var(--emp-blue) !important;
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.emp-btn-outline:hover {
+    background-color: var(--emp-blue-subtle);
+    border-color: var(--emp-blue);
+    color: var(--emp-blue-hover) !important;
+}
+
+.emp-btn-danger-outline {
+    background-color: transparent;
+    color: var(--emp-danger-text) !important;
+    border: 1px solid #f5c2c7;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.emp-btn-danger-outline:hover {
+    background-color: var(--emp-danger-bg);
+}
+
+.emp-btn-danger {
+    background-color: var(--emp-danger-text);
+    color: #ffffff !important;
+    border: 1px solid var(--emp-danger-text);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.emp-btn-danger:hover {
+    background-color: #b3261e;
+    border-color: #b3261e;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.emp-btn-sm {
+    font-size: 0.8125rem;
+    padding: 0.35rem 0.75rem;
+}
+
+/* ==========================================================================
+   Form Controls
+   ========================================================================== */
+.emp-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.emp-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--emp-text-secondary);
+    margin-bottom: 0.35rem;
+    display: block;
+}
+
+.emp-input, .emp-textarea, .emp-select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--emp-text-primary);
+    background-color: #ffffff;
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+.emp-input:focus, .emp-textarea:focus, .emp-select:focus {
+    border-color: var(--emp-blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+}
+
+.emp-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ==========================================================================
+   Table
+   ========================================================================== */
+.emp-table-container {
+    background-color: var(--emp-surface-card);
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.emp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.emp-table th {
+    background-color: #fafbfc;
+    color: var(--emp-text-secondary);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--emp-border);
+    font-size: 0.8125rem;
+    letter-spacing: 0.2px;
+}
+
+.emp-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--emp-border-subtle);
+    color: var(--emp-text-primary);
+    vertical-align: middle;
+}
+
+.emp-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.emp-table tbody tr:hover td {
+    background-color: #f8fafd;
+}
+
+/* ==========================================================================
+   Status Chips / Badges
+   ========================================================================== */
+.emp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.emp-chip-active {
+    background-color: var(--emp-success-bg);
+    color: var(--emp-success-text);
+}
+
+.emp-chip-pending {
+    background-color: var(--emp-warning-bg);
+    color: var(--emp-warning-text);
+}
+
+.emp-chip-inactive {
+    background-color: var(--emp-danger-bg);
+    color: var(--emp-danger-text);
+}
+
+/* ==========================================================================
+   Enhanced Phase Badges - Modern Pill Design
+   ========================================================================== */
+.emp-phase-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    min-height: 32px;
+}
+
+.emp-phase-badge i {
+    font-size: 0.875rem;
+}
+
+.emp-phase-booking-open {
+    background-color: #d1f4e0;
+    color: #0d7d3f;
+}
+
+.emp-phase-slot-creation {
+    background-color: #fff4e5;
+    color: #b76e00;
+}
+
+.emp-phase-booking-closed {
+    background-color: #fee;
+    color: #c5221f;
+}
+
+/* ==========================================================================
+   Enhanced Action Buttons
+   ========================================================================== */
+.emp-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 38px;
+    min-width: 130px;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.emp-action-btn i {
+    font-size: 0.9375rem;
+}
+
+.emp-action-btn-primary {
+    background-color: var(--emp-blue);
+    color: #ffffff !important;
+    border: 1px solid var(--emp-blue);
+}
+
+.emp-action-btn-primary:hover {
+    background-color: var(--emp-blue-hover);
+    border-color: var(--emp-blue-hover);
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+    transform: translateY(-1px);
+}
+
+.emp-action-btn-secondary {
+    background-color: #ffffff;
+    color: var(--emp-blue) !important;
+    border: 2px solid var(--emp-blue);
+}
+
+.emp-action-btn-secondary:hover {
+    background-color: var(--emp-blue-subtle);
+    border-color: var(--emp-blue-hover);
+    color: var(--emp-blue-hover) !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+}
+
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
+.emp-alert {
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.emp-alert-danger, .emp-alert-error {
+    background-color: var(--emp-danger-bg);
+    color: var(--emp-danger-text);
+    border: 1px solid #f5c2c7;
+}
+
+.emp-alert-success {
+    background-color: var(--emp-success-bg);
+    color: var(--emp-success-text);
+    border: 1px solid #c3e6cb;
+}
+
+.emp-alert-warning {
+    background-color: var(--emp-warning-bg);
+    color: var(--emp-warning-text);
+    border: 1px solid #ffeeba;
+}
+
+.emp-alert-info {
+    background-color: var(--emp-blue-subtle);
+    color: var(--emp-blue-hover);
+    border: 1px solid #b8daff;
+}
+
+/* ==========================================================================
+   Toast Notifications and Lifecycle Confirmations
+   ========================================================================== */
+.emp-toast-stack {
+    position: fixed;
+    top: 5rem;
+    right: 1.25rem;
+    z-index: 1080;
+    width: min(25rem, calc(100vw - 2rem));
+    display: grid;
+    gap: 0.75rem;
+    pointer-events: none;
+}
+
+.emp-toast {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.875rem 0.875rem 0.875rem 1rem;
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    background: var(--emp-surface-card);
+    box-shadow: var(--shadow-hover);
+    color: var(--emp-text-primary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    pointer-events: auto;
+    animation: emp-toast-in 0.18s ease-out;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.emp-toast.is-dismissing {
+    opacity: 0;
+    transform: translateX(0.75rem);
+}
+
+.emp-toast-success {
+    border-left: 4px solid var(--emp-success-text);
+}
+
+.emp-toast-success > i {
+    color: var(--emp-success-text);
+}
+
+.emp-toast-danger, .emp-toast-error {
+    border-left: 4px solid var(--emp-danger-text);
+}
+
+.emp-toast-danger > i, .emp-toast-error > i {
+    color: var(--emp-danger-text);
+}
+
+.emp-toast-warning {
+    border-left: 4px solid var(--emp-warning-text);
+}
+
+.emp-toast-warning > i {
+    color: var(--emp-warning-text);
+}
+
+.emp-toast-info {
+    border-left: 4px solid var(--emp-blue);
+}
+
+.emp-toast-info > i {
+    color: var(--emp-blue);
+}
+
+.emp-toast > i {
+    font-size: 1.05rem;
+    line-height: 1.25;
+}
+
+.emp-toast-message {
+    min-width: 0;
+}
+
+.emp-toast-dismiss {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-grid;
+    place-items: center;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--emp-text-secondary);
+    cursor: pointer;
+}
+
+.emp-toast-dismiss:hover {
+    background: var(--emp-surface-bg);
+    color: var(--emp-text-primary);
+}
+
+.emp-lifecycle-modal {
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-hover);
+}
+
+.emp-lifecycle-modal-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    display: inline-grid;
+    place-items: center;
+    margin-bottom: 1rem;
+    border: 1px solid #b8daff;
+    border-radius: 50%;
+    background: var(--emp-blue-subtle);
+    color: var(--emp-blue);
+    font-size: 1.45rem;
+}
+
+.emp-lifecycle-modal-icon.is-danger {
+    border-color: #f5c2c7;
+    background: var(--emp-danger-bg);
+    color: var(--emp-danger-text);
+}
+
+@keyframes emp-toast-in {
+    from { opacity: 0; transform: translateX(0.75rem); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ==========================================================================
+   Auth Box
+   ========================================================================== */
+.emp-auth-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.emp-auth-card {
+    background-color: #ffffff;
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: none;
+}
+
+.emp-auth-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--emp-text-primary);
+    margin-bottom: 0.35rem;
+    text-align: center;
+}
+
+.emp-auth-subtitle {
+    font-size: 0.9375rem;
+    color: var(--emp-text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Footer */
+.emp-footer {
+    border-top: 1px solid var(--emp-border);
+    background-color: var(--emp-surface-card);
+    padding: 1.25rem 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--emp-text-secondary);
+    margin-top: 3rem;
+}
+
+/* ==========================================================================
+   Responsive Design - Mobile, Tablet, Desktop
+   ========================================================================== */
+
+/* Mobile Navigation Toggle */
+.emp-mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    color: var(--emp-text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.emp-mobile-menu-toggle:hover {
+    background-color: var(--emp-surface-bg);
+}
+
+.emp-mobile-nav {
+    display: none;
+    position: fixed;
+    top: 61px;
+    left: 0;
+    right: 0;
+    background: var(--emp-surface-card);
+    border-bottom: 1px solid var(--emp-border);
+    padding: 1rem;
+    z-index: 999;
+    max-height: calc(100vh - 61px);
+    overflow-y: auto;
+}
+
+.emp-mobile-nav.show {
+    display: block;
+}
+
+.emp-mobile-nav .emp-nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Responsive Tables - Prevent page overflow */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f3f4;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #dadce0;
+    border-radius: 4px;
+}
+
+/* Mobile Card View for Tables */
+.emp-mobile-card-list {
+    display: none;
+}
+
+.emp-desktop-table {
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .emp-mobile-card-list {
+        display: block;
+    }
+
+    .emp-desktop-table {
+        display: none;
+    }
+}
+
+.emp-exam-card {
+    background: var(--emp-surface-card);
+    border: 1px solid var(--emp-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.emp-exam-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--emp-border-subtle);
+}
+
+.emp-exam-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--emp-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.emp-exam-card-subtitle {
+    font-size: 0.8125rem;
+    color: var(--emp-blue);
+    font-weight: 500;
+}
+
+.emp-exam-card-body {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.emp-exam-card-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.emp-exam-card-label {
+    font-size: 0.7rem;
+    color: var(--emp-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.emp-exam-card-value {
+    font-size: 0.875rem;
+    color: var(--emp-text-primary);
+    font-weight: 500;
+}
+
+.emp-exam-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--emp-border-subtle);
+}
+
+/* Full-width buttons on mobile */
+.emp-btn-mobile-full {
+    width: 100%;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .emp-btn-mobile-full {
+        width: auto;
+    }
+}
+
+/* Tablet Adjustments (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .emp-navbar {
+        padding: 0.75rem 1rem;
+    }
+
+    .emp-mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    h1, .h1 {
+        font-size: 1.75rem;
+    }
+
+    h2, .h2 {
+        font-size: 1.25rem;
+    }
+
+    .emp-stat-value {
+        font-size: 2rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .emp-table {
+        min-width: 900px;
+    }
+}
+
+/* Large Mobile (481px - 767px) */
+@media (max-width: 767px) and (min-width: 481px) {
+    main.container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .emp-card {
+        padding: 1.25rem;
+    }
+
+    .emp-action-btn {
+        min-height: 40px;
+        min-width: 130px;
+        padding: 0.6rem 1.15rem;
+        font-size: 0.8125rem;
+    }
+
+    .emp-phase-badge {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8125rem;
+        min-height: 34px;
+    }
+}
+
+/* Mobile Adjustments (320px - 767px) */
+@media (max-width: 767px) {
+    /* Prevent horizontal overflow */
+    body {
+        overflow-x: hidden;
+    }
+
+    main.container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .emp-navbar {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .emp-mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        order: 2;
+    }
+
+    .emp-navbar > div:first-child {
+        order: 1;
+        flex: 1;
+    }
+
+    .emp-navbar > div:last-child {
+        order: 3;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Typography scaling */
+    h1, .h1 {
+        font-size: 1.5rem;
+        letter-spacing: -0.3px;
+    }
+
+    h2, .h2 {
+        font-size: 1.15rem;
+    }
+
+    h3, .h3 {
+        font-size: 1rem;
+    }
+
+    .text-emp-secondary {
+        font-size: 0.875rem;
+    }
+
+    /* Cards */
+    .emp-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .emp-stat-card {
+        padding: 1rem;
+    }
+
+    .emp-stat-value {
+        font-size: 1.75rem;
+    }
+
+    /* Buttons */
+    .emp-btn-primary,
+    .emp-btn-outline,
+    .emp-btn-danger {
+        font-size: 0.8125rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Button groups - stack vertically on mobile */
+    .d-flex.gap-2 > .emp-btn-primary,
+    .d-flex.gap-2 > .emp-btn-outline,
+    .d-flex.gap-2 > .emp-btn-danger,
+    .d-flex.gap-2 > form {
+        flex: 1 1 auto;
+    }
+
+    /* Enhanced action buttons responsive */
+    .emp-action-btn {
+        min-height: 40px;
+        min-width: 120px;
+        padding: 0.55rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .emp-action-btn i {
+        font-size: 0.95rem;
+    }
+
+    /* Phase badges responsive */
+    .emp-phase-badge {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8125rem;
+        min-height: 32px;
+    }
+
+    .emp-phase-badge i {
+        font-size: 0.9rem;
+    }
+
+    /* Form adjustments */
+    .emp-input, .emp-textarea, .emp-select {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .emp-label {
+        font-size: 0.75rem;
+    }
+
+    .emp-form-group {
+        margin-bottom: 1rem;
+    }
+
+    /* Force single column forms on mobile */
+    .row.g-3 > [class*="col-md-"],
+    .row.g-3 > [class*="col-lg-"],
+    .row.g-2 > [class*="col-md-"],
+    .row.g-2 > [class*="col-lg-"] {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* Auth card */
+    .emp-auth-card {
+        padding: 1.5rem;
+    }
+
+    .emp-auth-title {
+        font-size: 1.25rem;
+    }
+
+    /* Footer */
+    .emp-footer {
+        padding: 1rem;
+        font-size: 0.75rem;
+    }
+
+    /* Chips/Badges */
+    .emp-chip {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    /* User badge in navbar */
+    .emp-user-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Table container adjustments */
+    .emp-table-container {
+        overflow-x: auto;
+        margin-left: -1rem;
+        margin-right: -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Stat cards responsive grid */
+    .row > [class*="col-"] .emp-stat-card {
+        margin-bottom: 1rem;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb {
+        font-size: 0.75rem !important;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-item {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+}
+
+/* Extra Small Devices (320px - 480px) */
+@media (max-width: 480px) {
+    main.container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    h1, .h1 {
+        font-size: 1.35rem;
+    }
+
+    h2, .h2 {
+        font-size: 1.05rem;
+    }
+
+    .emp-card {
+        padding: 0.875rem;
+    }
+
+    /* Stack button groups vertically */
+    .d-flex.flex-wrap.gap-2 {
+        flex-direction: column;
+    }
+
+    .d-flex.flex-wrap.gap-2 > * {
+        width: 100%;
+    }
+
+    .d-flex.flex-wrap.gap-2 > form {
+        width: 100%;
+    }
+
+    .d-flex.flex-wrap.gap-2 > form button {
+        width: 100%;
+    }
+
+    /* Full width buttons on small screens */
+    .emp-btn-primary:not(.emp-btn-sm),
+    .emp-btn-outline:not(.emp-btn-sm),
+    .emp-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .emp-action-btn {
+        min-width: auto;
+    }
+
+    /* Exam cards on mobile */
+    .emp-exam-card {
+        padding: 0.875rem;
+    }
+
+    .emp-exam-card-body {
+        grid-template-columns: 1fr;
+    }
+
+    .emp-exam-card-footer {
+        flex-direction: column;
+    }
+
+    .emp-exam-card-footer .emp-phase-badge,
+    .emp-exam-card-footer .emp-action-btn {
+        width: 100%;
+    }
+}
+
+/* Mobile Adjustments (max-width: 767px) */
+@media (max-width: 767px) {
+    .emp-navbar {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .emp-mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        order: 2;
+    }
+
+    .emp-navbar > div:first-child {
+        order: 1;
+        flex: 1;
+    }
+
+    .emp-navbar > div:last-child {
+        order: 3;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Typography scaling */
+    h1, .h1 {
+        font-size: 1.5rem;
+        letter-spacing: -0.3px;
+    }
+
+    h2, .h2 {
+        font-size: 1.15rem;
+    }
+
+    h3, .h3 {
+        font-size: 1rem;
+    }
+
+    .text-emp-secondary {
+        font-size: 0.875rem;
+    }
+
+    /* Cards */
+    .emp-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .emp-stat-card {
+        padding: 1rem;
+    }
+
+    .emp-stat-value {
+        font-size: 1.75rem;
+    }
+
+    /* Buttons - Full width on mobile when appropriate */
+    .emp-btn-primary,
+    .emp-btn-outline,
+    .emp-btn-danger {
+        font-size: 0.8125rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Button groups - stack vertically on mobile */
+    .d-flex.gap-2 > .emp-btn-primary,
+    .d-flex.gap-2 > .emp-btn-outline,
+    .d-flex.gap-2 > .emp-btn-danger,
+    .d-flex.gap-2 > form {
+        flex: 1 1 auto;
+    }
+
+    /* Action buttons in tables */
+    .emp-table td .emp-btn-primary,
+    .emp-table td .emp-btn-outline {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        white-space: nowrap;
+    }
+
+    .emp-table td .emp-btn-primary i,
+    .emp-table td .emp-btn-outline i {
+        font-size: 0.875rem;
+    }
+
+    /* Enhanced action buttons responsive */
+    .emp-action-btn {
+        min-height: 40px;
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .emp-action-btn i {
+        font-size: 1rem;
+    }
+
+    /* Phase badges responsive */
+    .emp-phase-badge {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8125rem;
+        min-height: 32px;
+    }
+
+    .emp-phase-badge i {
+        font-size: 0.9rem;
+    }
+
+    /* Form adjustments */
+    .emp-input, .emp-textarea, .emp-select {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .emp-label {
+        font-size: 0.75rem;
+    }
+
+    /* Auth card */
+    .emp-auth-card {
+        padding: 1.5rem;
+    }
+
+    .emp-auth-title {
+        font-size: 1.25rem;
+    }
+
+    /* Footer */
+    .emp-footer {
+        padding: 1rem;
+        font-size: 0.75rem;
+    }
+
+    /* Chips/Badges */
+    .emp-chip {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    /* User badge in navbar */
+    .emp-user-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Table container adjustments */
+    .emp-table-container {
+        overflow-x: auto;
+    }
+
+    /* Stat cards responsive grid */
+    .row > [class*="col-"] .emp-stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Extra small devices (max-width: 575px) */
+@media (max-width: 575px) {
+    main.container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    h1, .h1 {
+        font-size: 1.35rem;
+    }
+
+    /* Stack button groups vertically */
+    .d-flex.flex-wrap.gap-2 {
+        flex-direction: column;
+    }
+
+    .d-flex.flex-wrap.gap-2 > * {
+        width: 100%;
+    }
+
+    .d-flex.flex-wrap.gap-2 > form {
+        width: 100%;
+    }
+
+    .d-flex.flex-wrap.gap-2 > form button {
+        width: 100%;
+    }
+
+    /* Full width buttons on small screens */
+    .emp-btn-primary:not(.emp-btn-sm),
+    .emp-btn-outline:not(.emp-btn-sm) {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 1rem;
+    }
+
+    /* Breadcrumbs smaller */
+    .breadcrumb {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .emp-navbar,
+    .emp-footer,
+    .emp-btn-primary,
+    .emp-btn-outline,
+    .emp-btn-danger,
+    button {
+        display: none !important;
+    }
+
+    .emp-card {
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+}
+
+/* ==========================================================================
+   Mobile-First Responsive Card Layouts for Tables
+   ========================================================================== */
+
+/* Mobile Card Layout - Replaces tables on small screens */
+.emp-mobile-card {
+    display: none;
+}
+
+/* Desktop table view - hidden on mobile */
+.emp-desktop-table {
+    display: block;
+}
+
+.emp-mobile-card-list {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    /* Hide desktop table, show mobile cards */
+    .emp-desktop-table {
+        display: none !important;
+    }
+
+    .emp-mobile-card-list {
+        display: block !important;
+    }
+
+    /* Exam Card Styles */
+    .emp-exam-card {
+        background: var(--emp-surface-card);
+        border: 1px solid var(--emp-border);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .emp-exam-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.875rem;
+        border-bottom: 1px solid var(--emp-border-subtle);
+    }
+
+    .emp-exam-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--emp-text-primary);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .emp-exam-card-subtitle {
+        font-size: 0.8125rem;
+        color: var(--emp-text-secondary);
+        line-height: 1.4;
+    }
+
+    .emp-exam-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .emp-exam-card-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .emp-exam-card-label {
+        font-size: 0.8125rem;
+        color: var(--emp-text-secondary);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+    .emp-exam-card-label i {
+        color: var(--emp-blue);
+        font-size: 0.875rem;
+    }
+
+    .emp-exam-card-value {
+        font-size: 0.875rem;
+        color: var(--emp-text-primary);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .emp-exam-card-footer {
+        padding-top: 0.875rem;
+        border-top: 1px solid var(--emp-border-subtle);
+    }
+
+    .emp-exam-card-footer .emp-action-btn {
+        width: 100%;
+    }
+
+    /* Generic mobile cards */
+    .emp-mobile-card {
+        display: block;
+        background: var(--emp-surface-card);
+        border: 1px solid var(--emp-border);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .emp-mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--emp-border-subtle);
+    }
+
+    .emp-mobile-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--emp-text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .emp-mobile-card-subtitle {
+        font-size: 0.8125rem;
+        color: var(--emp-text-secondary);
+    }
+
+    .emp-mobile-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .emp-mobile-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .emp-mobile-card-label {
+        color: var(--emp-text-secondary);
+        font-weight: 500;
+        font-size: 0.8125rem;
+    }
+
+    .emp-mobile-card-value {
+        color: var(--emp-text-primary);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .emp-mobile-card-footer {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--emp-border-subtle);
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .emp-mobile-card-footer .emp-action-btn,
+    .emp-mobile-card-footer .emp-btn-primary,
+    .emp-mobile-card-footer .emp-btn-outline {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    /* Info grid for mobile cards */
+    .emp-mobile-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 0.75rem 0;
+    }
+
+    .emp-mobile-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .emp-mobile-info-item i {
+        color: var(--emp-blue);
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .emp-mobile-info-label {
+        font-size: 0.75rem;
+        color: var(--emp-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+    }
+
+    .emp-mobile-info-value {
+        font-size: 0.875rem;
+        color: var(--emp-text-primary);
+        font-weight: 500;
+    }
+}
+
+/* ==========================================================================
+   Enhanced Mobile Form Responsiveness
+   ========================================================================== */
+
+@media (max-width: 767px) {
+    /* Single column forms on mobile */
+    .emp-card form .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .emp-card form .row > [class*="col-"] {
+        padding-left: 0;
+        padding-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    /* Full width form buttons */
+    .emp-card form .emp-btn-primary,
+    .emp-card form .emp-btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Date and time inputs side by side when appropriate */
+    .emp-form-datetime-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    /* Better label and input spacing */
+    .emp-form-group {
+        margin-bottom: 1rem;
+    }
+
+    /* Prevent input zoom on iOS */
+    .emp-input,
+    .emp-select,
+    .emp-textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* ==========================================================================
+   Container and Layout Adjustments
+   ========================================================================== */
+
+@media (max-width: 767px) {
+    /* Reduce container padding on mobile */
+    main.container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Reduce card padding */
+    .emp-card {
+        padding: 0.875rem;
+    }
+
+    /* Max-width cards full width on mobile */
+    .emp-card[style*="max-width"] {
+        max-width: 100% !important;
+    }
+
+    /* Page headers */
+    .d-flex.align-items-start.justify-content-between,
+    .d-flex.align-items-center.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    .d-flex.align-items-start.justify-content-between > *,
+    .d-flex.align-items-center.justify-content-between > * {
+        width: 100%;
+    }
+
+    .d-flex.flex-wrap.align-items-center.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        padding: 0 0.3rem;
+    }
+
+    /* Page title sections */
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Stat cards grid */
+    .row.g-3 {
+        gap: 0.75rem !important;
+    }
+
+    .row.g-3 > [class*="col-"] {
+        padding-left: 0.375rem;
+        padding-right: 0.375rem;
+    }
+
+    /* Fix row margins */
+    .row {
+        margin-left: -0.375rem;
+        margin-right: -0.375rem;
+    }
+
+    .row > [class*="col-"] {
+        padding-left: 0.375rem;
+        padding-right: 0.375rem;
+    }
+}
+
+/* ==========================================================================
+   Modal and Dropdown Improvements
+   ========================================================================== */
+
+@media (max-width: 767px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        border-radius: var(--radius-md);
+    }
+
+    .modal-body {
+        padding: 1.25rem;
+    }
+
+    /* Bootstrap dropdown adjustments */
+    .dropdown-menu {
+        max-width: calc(100vw - 2rem);
+    }
+}
+
+/* ==========================================================================
+   Navigation Improvements
+   ========================================================================== */
+
+@media (max-width: 767px) {
+    /* Tighter navbar */
+    .emp-navbar {
+        padding: 0.625rem 0.75rem;
+    }
+
+    .emp-navbar-brand {
+        font-size: 1rem;
+    }
+
+    /* Better mobile nav */
+    .emp-mobile-nav {
+        max-height: calc(100vh - 57px);
+    }
+
+    .emp-mobile-nav .emp-nav-link {
+        font-size: 0.9375rem;
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* ==========================================================================
+   Table Overflow Fix
+   ========================================================================== */
+
+@media (max-width: 991px) {
+    /* Ensure tables scroll horizontally within container */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
+    }
+
+    .emp-table {
+        min-width: 100%;
+        width: max-content;
+    }
+
+    /* Prevent page-level horizontal scroll */
+    body {
+        overflow-x: hidden;
+    }
+
+    main.container {
+        overflow-x: hidden;
+    }
+}
+
+/* ==========================================================================
+   Button Responsive Improvements
+   ========================================================================== */
+
+@media (max-width: 575px) {
+    /* Stack button groups vertically */
+    .d-flex.gap-2.align-items-center {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .d-flex.gap-2 > .emp-btn-primary,
+    .d-flex.gap-2 > .emp-btn-outline,
+    .d-flex.gap-2 > .emp-btn-danger,
+    .d-flex.gap-2 > button,
+    .d-flex.gap-2 > a {
+        width: 100%;
+    }
+
+    /* Full width primary actions */
+    .emp-btn-primary:not(.emp-btn-sm):not(.emp-action-btn) {
+        width: 100%;
+    }
+}

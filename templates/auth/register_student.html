@@ -1,0 +1,61 @@
+{# auth/register_student.html - Public student registration form.
+   Allows candidates to create an active student account with roll number and phone. Route: auth.register_student #}
+{% extends "base.html" %}
+
+{% block title %}Student Registration - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="emp-auth-wrapper">
+    <div class="emp-auth-card" style="max-width: 480px;">
+        <div class="text-center mb-4">
+            <span class="fs-1 text-primary"><i class="bi bi-person-plus-fill"></i></span>
+            <h1 class="emp-auth-title">Create Student Account</h1>
+            <p class="emp-auth-subtitle">Register to book viva slots and view examination results</p>
+        </div>
+
+        <form method="POST">
+            <div class="emp-form-group">
+                <label for="name" class="emp-label">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="emp-input" id="name" name="name" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+            </div>
+
+            <div class="emp-form-group">
+                <label for="email" class="emp-label">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="emp-input" id="email" name="email" placeholder="name@student.local" required autocomplete="email">
+            </div>
+
+            <div class="emp-form-group">
+                <label for="password" class="emp-label">Password <span class="text-danger">*</span></label>
+                <div class="position-relative">
+                    <input type="password" class="emp-input" id="password" name="password" placeholder="Create a secure password" required autocomplete="new-password" style="padding-right: 2.75rem;">
+                    <button type="button" class="btn border-0 p-0 position-absolute end-0 top-50 translate-middle-y me-3 text-secondary btn-toggle-password" style="cursor: pointer; background: transparent; line-height: 1;" aria-label="Show password">
+                        <i class="bi bi-eye fs-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="roll_no" class="emp-label">Roll Number</label>
+                    <input type="text" class="emp-input" id="roll_no" name="roll_no" placeholder="e.g. 21f1000001">
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="emp-label">Phone</label>
+                    <input type="tel" class="emp-input" id="phone" name="phone" placeholder="e.g. 9876543210">
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="emp-btn-primary w-100">Register as Student</button>
+            </div>
+        </form>
+
+        <hr class="my-4" style="border-color: var(--emp-border);">
+
+        <div class="text-center" style="font-size: 0.875rem;">
+            <span class="text-emp-secondary">Already have an account? </span>
+            <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-medium text-primary">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

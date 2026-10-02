@@ -1,0 +1,128 @@
+{# student/exams.html - Available examinations directory.
+   Allows candidates to browse and filter open exams by course, type, or search term. Route: student.exams #}
+{% extends "base.html" %}
+
+{% block title %}Browse Examinations - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Browse Exams</li>
+            </ol>
+        </nav>
+        <h1>Available Examinations</h1>
+        <p class="text-emp-secondary mb-0">Browse open examinations and reserve an available evaluation time slot.</p>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="emp-card mb-4 p-3">
+    <form method="GET" action="{{ url_for('student.exams') }}" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <input
+                type="text"
+                class="emp-input"
+                name="q"
+                value="{{ query_str or '' }}"
+                placeholder="Search by exam name or type..."
+            >
+        </div>
+        <div class="col-md-3">
+            <select class="emp-input emp-select" name="course_id">
+                <option value="">All Courses</option>
+                {% for c in courses %}
+                <option value="{{ c.id }}" {% if selected_course_id == c.id %}selected{% endif %}>
+                    {{ c.code }} - {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="emp-input emp-select" name="type">
+                <option value="">All Types</option>
+                <option value="Viva" {% if selected_type == 'Viva' %}selected{% endif %}>Viva</option>
+                <option value="Practical" {% if selected_type == 'Practical' %}selected{% endif %}>Practical</option>
+                <option value="Project Demo" {% if selected_type == 'Project Demo' %}selected{% endif %}>Project Demo</option>
+                <option value="Assessment" {% if selected_type == 'Assessment' %}selected{% endif %}>Assessment</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="emp-btn-primary emp-btn-sm w-100">Filter</button>
+            <a href="{{ url_for('student.exams') }}" class="emp-btn-outline emp-btn-sm">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Exams Table -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-journal-text text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Open Examinations ({{ exams|length }})</h2>
+        </div>
+    </div>
+
+    {% if exams %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Examination</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Max Marks</th>
+                    <th>Booking Deadline</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>
+                        <span class="fw-medium">{{ exam.name }}</span>
+                    </td>
+                    <td>
+                        <span class="text-primary fw-medium" style="letter-spacing:0.3px;">{{ exam.course.code }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">{{ exam.course.name }}</div>
+                    </td>
+                    <td>{{ exam.type }}</td>
+                    <td>{{ exam.duration }} min</td>
+                    <td>{{ exam.max_marks }}</td>
+                    <td>
+                        {% if exam.booking_end %}
+                            <span style="font-size:0.8125rem;">{{ exam.booking_end.strftime('%d %b %Y, %H:%M') }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        {% if exam.id in active_booked_exam_ids %}
+                            <span class="emp-chip emp-chip-active me-2">Already Booked</span>
+                            <a href="{{ url_for('student.exam_detail', exam_id=exam.id) }}" class="emp-btn-outline emp-btn-sm">
+                                View Details
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('student.exam_detail', exam_id=exam.id) }}" class="emp-btn-primary emp-btn-sm">
+                                View Slots & Book
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-journal-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No examinations are currently open for booking matching your filters.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{# 500.html - Internal server error page.
+   Displayed on unhandled server exceptions. Database session is automatically rolled back. #}
+{% extends "base.html" %}
+
+{% block title %}500 Server Error - EMP{% endblock %}
+
+{% block content %}
+<div class="emp-card p-5 text-center mx-auto my-5" style="max-width:540px;">
+    <div class="mb-3">
+        <i class="bi bi-exclamation-triangle display-3 text-danger"></i>
+    </div>
+    <h1 class="h2 mb-2">Something Went Wrong (500)</h1>
+    <p class="text-emp-secondary mb-4">
+        An unexpected error occurred while processing your request. Any incomplete transaction has been safely rolled back.
+    </p>
+    <div class="d-flex justify-content-center">
+        <a href="{{ url_for('auth.index') }}" class="emp-btn-primary">
+            Return to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

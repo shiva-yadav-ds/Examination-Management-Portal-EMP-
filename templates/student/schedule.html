@@ -1,0 +1,77 @@
+{# student/schedule.html - Chronological appointment calendar.
+   Displays upcoming confirmed viva and exam sessions as structured cards. Route: student.schedule #}
+{% extends "base.html" %}
+
+{% block title %}My Schedule - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Schedule</li>
+            </ol>
+        </nav>
+        <h1>Examination Schedule</h1>
+        <p class="text-emp-secondary mb-0">Your upcoming evaluation appointments in chronological order.</p>
+    </div>
+    <a href="{{ url_for('student.bookings') }}" class="emp-btn-outline">
+        View All Bookings
+    </a>
+</div>
+
+{% if bookings %}
+<div class="row g-3">
+    {% for b in bookings %}
+    <div class="col-md-6 col-lg-4">
+        <div class="emp-stat-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-primary fw-medium" style="font-size:0.8125rem; letter-spacing:0.3px;">
+                        {{ b.examination.course.code }}
+                    </span>
+                    <span class="emp-chip emp-chip-active">Confirmed</span>
+                </div>
+
+                <h3 class="h3 mb-1" style="font-size:1.1rem;">{{ b.examination.name }}</h3>
+                <div class="text-emp-secondary mb-3" style="font-size:0.8125rem;">
+                    {{ b.examination.type }} | {{ b.examination.duration }} minutes
+                </div>
+
+                <div class="p-3 mb-3" style="background:#fafbfc; border-radius:var(--radius-sm); border:1px solid var(--emp-border);">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                        <span class="fw-medium">{{ b.slot.exam_date.strftime('%A, %d %B %Y') }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-clock text-primary"></i>
+                        <span>{{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 text-emp-secondary" style="font-size:0.8125rem;">
+                        <i class="bi bi-person-badge"></i>
+                        <span>Examiner: {{ b.slot.examiner.name }} ({{ b.slot.examiner.examiner_profile.department if b.slot.examiner.examiner_profile and b.slot.examiner.examiner_profile.department else "Faculty" }})</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('student.exam_detail', exam_id=b.exam_id) }}" class="emp-btn-outline emp-btn-sm">
+                    Exam Details
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="emp-card p-5 text-center text-emp-secondary">
+    <i class="bi bi-calendar-check display-5 d-block mb-3 text-muted"></i>
+    <h3 class="h3 mb-1">No upcoming examinations</h3>
+    <p class="mb-3">You do not have any active appointments scheduled at this moment.</p>
+    <a href="{{ url_for('student.exams') }}" class="emp-btn-primary emp-btn-sm">Browse Available Exams</a>
+</div>
+{% endif %}
+
+{% endblock %}

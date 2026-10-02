@@ -1,0 +1,179 @@
+{# examiner/exams.html - Open examinations discovery.
+   Lists exams currently in 'Slot Creation' status awaiting examiner scheduling. Route: examiner.exams #}
+{% extends "base.html" %}
+
+{% block title %}Open Examinations - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('examiner.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Open Examinations</li>
+            </ol>
+        </nav>
+        <h1>Open Examinations</h1>
+        <p class="text-emp-secondary mb-0">Exams whose slot-creation window is still open - including those already accepting student bookings.</p>
+    </div>
+    <a href="{{ url_for('examiner.create_slot') }}" class="emp-btn-primary">
+        <i class="bi bi-plus-circle"></i> Create Slot
+    </a>
+</div>
+
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-journal-check text-secondary"></i>
+        <h2 class="h2 mb-0" style="font-size:1.1rem;">Accepting Slots ({{ exams|length }})</h2>
+    </div>
+
+    {% if exams %}
+    <!-- Desktop Table View -->
+    <div class="table-responsive emp-desktop-table">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Examination</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Max Marks</th>
+                    <th>Slot Creation Window</th>
+                    <th style="text-align:center;">Phase</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                {% set win_info = exam_window_status.get(exam.id, {'is_open': false, 'message': 'Window status unavailable'}) %}
+                {% set can_add = exam_can_add.get(exam.id, false) %}
+                <tr>
+                    <td>
+                        <span class="fw-medium">{{ exam.name }}</span>
+                    </td>
+                    <td>
+                        <span class="text-primary fw-medium" style="letter-spacing:0.3px;">{{ exam.course.code }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">{{ exam.course.name }}</div>
+                    </td>
+                    <td>{{ exam.type }}</td>
+                    <td>{{ exam.duration }} min</td>
+                    <td>{{ exam.max_marks }}</td>
+                    <td>
+                        {% if exam.slot_creation_start and exam.slot_creation_end %}
+                            <div style="font-size:0.8125rem;">
+                                {{ exam.slot_creation_start.strftime('%d %b, %H:%M') }} - {{ exam.slot_creation_end.strftime('%d %b %Y, %H:%M') }}
+                            </div>
+                            <div class="mt-1">
+                                {% if can_add %}
+                                    <span class="emp-chip emp-chip-active" style="font-size:0.7rem;"><i class="bi bi-clock me-1"></i>Window Open</span>
+                                {% else %}
+                                    <span class="emp-chip emp-chip-inactive" style="font-size:0.7rem;" title="{{ win_info.message }}"><i class="bi bi-lock me-1"></i>Window Closed</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted" style="font-size:0.8125rem;">Timeline not set</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if exam.status == 'Booking Open' %}
+                            <span class="emp-phase-badge emp-phase-booking-open">
+                                <i class="bi bi-calendar-check"></i>
+                                Booking Open
+                            </span>
+                        {% else %}
+                            <span class="emp-phase-badge emp-phase-slot-creation">
+                                <i class="bi bi-calendar-plus"></i>
+                                Slot Creation
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        {% if can_add %}
+                            <a href="{{ url_for('examiner.create_slot') }}?exam_id={{ exam.id }}" class="emp-action-btn emp-action-btn-primary">
+                                <i class="bi bi-plus-lg"></i> Add Slot
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('examiner.create_slot') }}?exam_id={{ exam.id }}" class="emp-action-btn emp-action-btn-secondary" title="{{ win_info.message }}">
+                                <i class="bi bi-file-text"></i> View Details
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="emp-mobile-card-list p-3">
+        {% for exam in exams %}
+        {% set win_info = exam_window_status.get(exam.id, {'is_open': false, 'message': 'Window status unavailable'}) %}
+        {% set can_add = exam_can_add.get(exam.id, false) %}
+        <div class="emp-exam-card">
+            <div class="emp-exam-card-header">
+                <div>
+                    <div class="emp-exam-card-title">{{ exam.name }}</div>
+                    <div class="emp-exam-card-subtitle">{{ exam.course.code }} | {{ exam.course.name }}</div>
+                </div>
+                {% if exam.status == 'Booking Open' %}
+                    <span class="emp-phase-badge emp-phase-booking-open">
+                        <i class="bi bi-calendar-check"></i>
+                        Booking Open
+                    </span>
+                {% else %}
+                    <span class="emp-phase-badge emp-phase-slot-creation">
+                        <i class="bi bi-calendar-plus"></i>
+                        Slot Creation
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="emp-exam-card-body">
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-journal-text me-1"></i>Type</div>
+                    <div class="emp-exam-card-value">{{ exam.type }}</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-clock me-1"></i>Duration</div>
+                    <div class="emp-exam-card-value">{{ exam.duration }} min</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-trophy me-1"></i>Max Marks</div>
+                    <div class="emp-exam-card-value">{{ exam.max_marks }}</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-calendar-range me-1"></i>Window Status</div>
+                    <div class="emp-exam-card-value">
+                        {% if can_add %}
+                            <span class="emp-chip emp-chip-active" style="font-size:0.7rem;"><i class="bi bi-unlock me-1"></i>Open</span>
+                        {% else %}
+                            <span class="emp-chip emp-chip-inactive" style="font-size:0.7rem;"><i class="bi bi-lock me-1"></i>Closed</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="emp-exam-card-footer">
+                {% if can_add %}
+                    <a href="{{ url_for('examiner.create_slot') }}?exam_id={{ exam.id }}" class="emp-action-btn emp-action-btn-primary">
+                        <i class="bi bi-plus-lg"></i> Add Slot
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('examiner.create_slot') }}?exam_id={{ exam.id }}" class="emp-action-btn emp-action-btn-secondary" title="{{ win_info.message }}">
+                        <i class="bi bi-file-text"></i> View Details
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-journal-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No examinations are currently open for slot creation.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

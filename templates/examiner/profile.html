@@ -1,0 +1,277 @@
+{# examiner/profile.html - Examiner profile settings.
+   Allows faculty to view and edit their name, academic department, and contact number with View/Edit toggle. Route: examiner.profile #}
+{% extends "base.html" %}
+
+{% block title %}Faculty Profile - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item active">Profile</li>
+        </ol>
+    </nav>
+    <h1>Faculty Profile</h1>
+    <p class="text-emp-secondary mb-0">View and update your academic identity, department, and contact information.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Identity & Activity Stats -->
+    <div class="col-lg-4">
+        <!-- Avatar & Identity Card -->
+        <div class="emp-card text-center p-4 mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width: 84px; height: 84px; border-radius: 50%; background: #e8f0fe; color: var(--emp-blue); font-size: 2rem; font-weight: 700; border: 2px solid var(--emp-border);">
+                {{ current_user.name[:2]|upper }}
+            </div>
+            <h2 class="h3 mb-1" style="font-size: 1.25rem;">{{ current_user.name }}</h2>
+            <div class="d-flex align-items-center justify-content-center gap-1 mb-2">
+                <span class="emp-chip emp-chip-active text-uppercase" style="font-size: 0.72rem;">
+                    Examiner
+                </span>
+                <span class="emp-chip" style="font-size: 0.72rem; background: #e6f4ea; color: #137333;">
+                    <i class="bi bi-shield-check me-1"></i> Active
+                </span>
+            </div>
+            <p class="text-emp-secondary mb-3" style="font-size: 0.875rem;">
+                <i class="bi bi-envelope me-1"></i> {{ current_user.email }}
+            </p>
+
+            <hr class="my-3" style="border-color: var(--emp-border);">
+
+            <div class="text-start" style="font-size: 0.8125rem;">
+                <div class="d-flex justify-content-between py-1 border-bottom" style="border-color: #f1f3f4 !important;">
+                    <span class="text-emp-secondary">Department:</span>
+                    <strong>{{ current_user.examiner_profile.department if current_user.examiner_profile and current_user.examiner_profile.department else "Not set" }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom" style="border-color: #f1f3f4 !important;">
+                    <span class="text-emp-secondary">Examiner ID:</span>
+                    <code>#EX-{{ current_user.id }}</code>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-emp-secondary">Member Since:</span>
+                    <span>{{ current_user.created_at.strftime('%d %b %Y') if current_user.created_at else "Active" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Activity Metrics Card -->
+        <div class="emp-card p-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-bar-chart-line text-primary"></i>
+                <h3 class="h3 mb-0" style="font-size: 0.95rem;">Teaching Activity</h3>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: #f1f3f4 !important;">
+                <span class="text-emp-secondary" style="font-size: 0.85rem;">Exam Slots Created</span>
+                <span class="fw-bold fs-6">{{ total_slots }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: #f1f3f4 !important;">
+                <span class="text-emp-secondary" style="font-size: 0.85rem;">Total Candidates Booked</span>
+                <span class="fw-bold fs-6">{{ total_candidates }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="text-emp-secondary" style="font-size: 0.85rem;">Evaluations Completed</span>
+                <span class="fw-bold fs-6 text-success">{{ completed_evaluations }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: View Mode & Edit Mode -->
+    <div class="col-lg-8">
+        <!-- 1. VIEW MODE SECTION (Default Visible) -->
+        <div class="emp-card p-4" id="profileViewSection">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 pb-3 border-bottom">
+                <div>
+                    <h2 class="h2 mb-1" style="font-size: 1.2rem;">
+                        <i class="bi bi-person-lines-fill text-primary me-2"></i>Faculty Information
+                    </h2>
+                    <p class="text-emp-secondary mb-0" style="font-size: 0.875rem;">Your current records shown to students and administrators.</p>
+                </div>
+                <button type="button" class="emp-btn-primary" id="btnEnableEdit">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </button>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light" style="border-color: var(--emp-border) !important;">
+                        <div class="text-emp-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
+                            Full Name
+                        </div>
+                        <div class="fw-semibold text-dark fs-6">{{ current_user.name }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light" style="border-color: var(--emp-border) !important;">
+                        <div class="text-emp-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
+                            Email Address (Permanent)
+                        </div>
+                        <div class="fw-semibold text-dark fs-6 d-flex align-items-center justify-content-between">
+                            <span>{{ current_user.email }}</span>
+                            <i class="bi bi-lock-fill text-muted" title="Primary account identifier"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light" style="border-color: var(--emp-border) !important;">
+                        <div class="text-emp-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
+                            Academic Department
+                        </div>
+                        <div class="fw-semibold text-dark fs-6">
+                            {{ current_user.examiner_profile.department if current_user.examiner_profile and current_user.examiner_profile.department else "Not specified" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light" style="border-color: var(--emp-border) !important;">
+                        <div class="text-emp-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
+                            Contact Phone
+                        </div>
+                        <div class="fw-semibold text-dark fs-6">
+                            {{ current_user.examiner_profile.contact if current_user.examiner_profile and current_user.examiner_profile.contact else "Not provided" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border rounded d-flex align-items-center gap-3" style="background: #f8fafd; border-color: var(--emp-border) !important;">
+                <i class="bi bi-shield-check text-primary fs-4"></i>
+                <div style="font-size: 0.8125rem;">
+                    <strong>Academic Credential Security:</strong>
+                    Your official email is linked to your institutional evaluations. To edit your display name, department, or contact phone, click <strong>Edit Profile</strong> above.
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. EDIT MODE SECTION (Hidden by default, shown when user clicks Edit Profile) -->
+        <div class="emp-card p-4 d-none" id="profileEditSection">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 pb-3 border-bottom">
+                <div>
+                    <h2 class="h2 mb-1" style="font-size: 1.2rem;">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>Edit Faculty Information
+                    </h2>
+                    <p class="text-emp-secondary mb-0" style="font-size: 0.875rem;">Make your changes below and click Save Changes.</p>
+                </div>
+                <button type="button" class="emp-btn-outline emp-btn-sm" id="btnCancelEditTop">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+            </div>
+
+            <form method="POST" action="{{ url_for('examiner.profile') }}">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <div class="emp-form-group">
+                            <label class="emp-label">Full Name <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                class="emp-input"
+                                name="name"
+                                value="{{ current_user.name }}"
+                                required
+                                maxlength="100"
+                                placeholder="e.g. Dr. Priya Mehta"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="emp-form-group">
+                            <label class="emp-label">Email Address</label>
+                            <div class="position-relative">
+                                <input
+                                    type="email"
+                                    class="emp-input"
+                                    value="{{ current_user.email }}"
+                                    disabled
+                                    style="background: #f8fafd; color: var(--emp-text-secondary); padding-right: 2.5rem;"
+                                >
+                                <i class="bi bi-lock-fill position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+                            </div>
+                            <div class="text-emp-secondary mt-1" style="font-size: 0.8125rem;">
+                                Email cannot be modified directly. Contact system administrator if your email changes.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="emp-form-group">
+                            <label class="emp-label">Department / School</label>
+                            <input
+                                type="text"
+                                class="emp-input"
+                                name="department"
+                                value="{{ current_user.examiner_profile.department if current_user.examiner_profile and current_user.examiner_profile.department else '' }}"
+                                placeholder="e.g. Machine Learning / Computer Science"
+                                maxlength="100"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="emp-form-group">
+                            <label class="emp-label">Contact Phone Number</label>
+                            <input
+                                type="tel"
+                                class="emp-input"
+                                name="contact"
+                                value="{{ current_user.examiner_profile.contact if current_user.examiner_profile and current_user.examiner_profile.contact else '' }}"
+                                placeholder="e.g. +91 9900112233"
+                                maxlength="20"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <button type="button" class="emp-btn-outline" id="btnCancelEditBottom">
+                        Cancel
+                    </button>
+                    <button type="submit" class="emp-btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle between View Profile and Edit Profile sections
+    const viewSection = document.getElementById('profileViewSection');
+    const editSection = document.getElementById('profileEditSection');
+    const btnEnableEdit = document.getElementById('btnEnableEdit');
+    const btnCancelTop = document.getElementById('btnCancelEditTop');
+    const btnCancelBottom = document.getElementById('btnCancelEditBottom');
+
+    function openEditMode() {
+        if (viewSection && editSection) {
+            viewSection.classList.add('d-none');
+            editSection.classList.remove('d-none');
+        }
+    }
+
+    function closeEditMode() {
+        if (viewSection && editSection) {
+            editSection.classList.add('d-none');
+            viewSection.classList.remove('d-none');
+        }
+    }
+
+    if (btnEnableEdit) btnEnableEdit.addEventListener('click', openEditMode);
+    if (btnCancelTop) btnCancelTop.addEventListener('click', closeEditMode);
+    if (btnCancelBottom) btnCancelBottom.addEventListener('click', closeEditMode);
+
+    // If query string has ?edit=1, automatically start in edit mode
+    if (new URLSearchParams(window.location.search).get('edit') === '1') {
+        openEditMode();
+    }
+</script>
+{% endblock %}

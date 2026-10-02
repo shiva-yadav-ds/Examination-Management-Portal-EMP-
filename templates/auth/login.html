@@ -1,0 +1,64 @@
+{# auth/login.html - User sign in page.
+   Renders the login form for all roles (admin, examiner, student). Route: auth.login #}
+{% extends "base.html" %}
+
+{% block title %}Sign in - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="emp-auth-wrapper">
+    <div class="emp-auth-card">
+        <div class="text-center mb-4">
+            <span class="fs-1 text-primary"><i class="bi bi-mortarboard-fill"></i></span>
+            <h1 class="emp-auth-title">Sign in</h1>
+            <p class="emp-auth-subtitle">Use your EMP account to continue</p>
+        </div>
+
+        <form method="POST">
+            {% if form %}
+                {{ form.hidden_tag() }}
+                <div class="emp-form-group">
+                    {{ form.email.label(class="emp-label") }}
+                    {{ form.email(class="emp-input", placeholder="name@example.com") }}
+                </div>
+                <div class="emp-form-group">
+                    {{ form.password.label(class="emp-label") }}
+                    {{ form.password(class="emp-input", placeholder="Enter your password") }}
+                </div>
+                <div class="d-grid mt-4">
+                    {{ form.submit(class="emp-btn-primary w-100") }}
+                </div>
+            {% else %}
+                <div class="emp-form-group">
+                    <label for="email" class="emp-label">Email Address</label>
+                    <input type="email" class="emp-input" id="email" name="email" placeholder="name@example.com" required autocomplete="email">
+                </div>
+
+                <div class="emp-form-group">
+                    <label for="password" class="emp-label">Password</label>
+                    <div class="position-relative">
+                        <input type="password" class="emp-input" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" style="padding-right: 2.75rem;">
+                        <button type="button" class="btn border-0 p-0 position-absolute end-0 top-50 translate-middle-y me-3 text-secondary btn-toggle-password" style="cursor: pointer; background: transparent; line-height: 1;" aria-label="Show password">
+                            <i class="bi bi-eye fs-6"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="emp-btn-primary w-100">Sign in</button>
+                </div>
+            {% endif %}
+        </form>
+
+        <hr class="my-4" style="border-color: var(--emp-border);">
+
+        <div class="text-center" style="font-size: 0.875rem;">
+            <p class="text-emp-secondary mb-2">Don't have an account?</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('auth.register_student') }}" class="text-decoration-none fw-medium text-primary">Student Registration</a>
+                <span class="text-muted">&bull;</span>
+                <a href="{{ url_for('auth.register_examiner') }}" class="text-decoration-none fw-medium text-primary">Examiner Signup</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

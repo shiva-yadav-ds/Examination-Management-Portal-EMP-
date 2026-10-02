@@ -1,0 +1,187 @@
+{# examiner/create_slot.html - New slot creation form.
+   Allows faculty to select an exam, pick date/time, and define seating capacity. Route: examiner.create_slot #}
+{% extends "base.html" %}
+
+{% block title %}Create Slot - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.slots') }}" class="text-decoration-none">My Slots</a></li>
+            <li class="breadcrumb-item active">Create Slot</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <h1 class="mb-1">Create Exam Slot</h1>
+            <p class="text-emp-secondary mb-0">Schedule a viva/examination session for students.</p>
+        </div>
+        <div class="emp-chip emp-chip-pending" style="font-size: 0.8125rem;" id="liveClockBadge">
+            <i class="bi bi-clock me-1"></i> Current Server Time: <strong id="liveClock">{{ current_server_time.strftime('%d %b %Y, %H:%M:%S') }}</strong>
+        </div>
+        <script>
+        (function() {
+            // Seed from server time to avoid client timezone drift
+            var serverMs = {{ (current_server_time.timestamp() * 1000) | int }};
+            var loadedAt = Date.now();
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+            function pad(n) { return n < 10 ? '0' + n : n; }
+
+            function formatTime() {
+                var now = new Date(serverMs + (Date.now() - loadedAt));
+                var d = now.getDate();
+                var m = months[now.getMonth()];
+                var y = now.getFullYear();
+                var h = pad(now.getHours());
+                var min = pad(now.getMinutes());
+                var s = pad(now.getSeconds());
+                return d + ' ' + m + ' ' + y + ', ' + h + ':' + min + ':' + s;
+            }
+
+            var el = document.getElementById('liveClock');
+            if (el) {
+                setInterval(function() {
+                    el.textContent = formatTime();
+                }, 1000);
+            }
+        })();
+        </script>
+    </div>
+</div>
+
+<!-- Notice about Lifecycle Distinction -->
+<div class="emp-card mb-4" style="background: #f8fafd; border-left: 4px solid var(--emp-blue); padding: 0.875rem 1.25rem;">
+    <div class="d-flex align-items-start gap-2" style="font-size: 0.8125rem;">
+        <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+        <div>
+            <strong>Examination Lifecycle & Timing Rules:</strong>
+            <ul class="mb-0 ps-3 mt-1 text-emp-secondary">
+                <li><strong>Slot Creation Window:</strong> The window configured by Admin during which you can add or modify slots. Checked against the <em>current server time</em>.</li>
+                <li><strong>Slot Date & Time:</strong> The actual scheduled viva date and time when students will attend.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="emp-card" style="max-width:680px;">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-calendar-plus text-primary fs-5"></i>
+        <h2 class="h2 mb-0">Slot Details</h2>
+    </div>
+
+    {% if exams %}
+    <form method="POST" action="{{ url_for('examiner.create_slot') }}" id="createSlotForm">
+        <div class="emp-form-group">
+            <label class="emp-label">Examination <span class="text-danger">*</span></label>
+            <select class="emp-input emp-select" name="exam_id" id="examSelect" required>
+                <option value="">- Select examination -</option>
+                {% for exam in exams %}
+                <option value="{{ exam.id }}" {% if preselect_exam_id == exam.id %}selected{% endif %}>
+                    {{ exam.name }} ({{ exam.course.code }}) - {{ exam.duration }} min
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Dynamic Window Status Banner -->
+        <div id="windowStatusBox" class="p-3 mb-3 rounded" style="display:none; font-size: 0.8125rem; border: 1px solid var(--emp-border);">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="text-emp-secondary fw-semibold">Slot Creation Window Status:</span>
+                <span id="windowBadge" class="emp-chip"></span>
+            </div>
+            <div id="windowDetails" class="text-emp-secondary"></div>
+            <div id="windowAlert" class="mt-2 text-danger fw-semibold" style="display:none;"></div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="emp-label">Slot Exam Date <span class="text-danger">*</span></label>
+                <input type="date" class="emp-input" name="exam_date" id="examDateInput" required min="{{ current_server_time.strftime('%Y-%m-%d') }}">
+                <span class="text-emp-secondary" style="font-size: 0.75rem;">Actual viva schedule date for students</span>
+            </div>
+            <div class="col-md-6">
+                <label class="emp-label">Start Time <span class="text-danger">*</span></label>
+                <input type="time" class="emp-input" name="start_time" id="startTimeInput" required>
+                <span class="text-emp-secondary" style="font-size: 0.75rem;">End time auto-calculated by duration</span>
+            </div>
+        </div>
+
+        <div class="emp-form-group">
+            <label class="emp-label">Student Capacity <span class="text-danger">*</span></label>
+            <input type="number" class="emp-input" name="capacity" min="1" max="50" placeholder="e.g. 5" required>
+            <span class="text-emp-secondary" style="font-size: 0.75rem;">Maximum students that can book this slot</span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('examiner.slots') }}" class="emp-btn-outline">Cancel</a>
+            <button type="submit" id="submitBtn" class="emp-btn-primary">
+                <i class="bi bi-check-lg"></i> Create Slot
+            </button>
+        </div>
+    </form>
+
+    <script>
+    (function() {
+        const examDetails = {{ exam_window_details | tojson }};
+        const examSelect = document.getElementById('examSelect');
+        const statusBox = document.getElementById('windowStatusBox');
+        const badge = document.getElementById('windowBadge');
+        const details = document.getElementById('windowDetails');
+        const alertMsg = document.getElementById('windowAlert');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function updateExamInfo() {
+            const examId = examSelect.value;
+            if (!examId || !examDetails[examId]) {
+                statusBox.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+                return;
+            }
+
+            const info = examDetails[examId];
+            statusBox.style.display = 'block';
+
+            if (info.is_open) {
+                badge.className = 'emp-chip emp-chip-active';
+                badge.innerHTML = '<i class="bi bi-check-circle me-1"></i> Window Open';
+                statusBox.style.backgroundColor = '#f6fbf7';
+                statusBox.style.borderColor = '#ceead6';
+                details.innerHTML = '<strong>Creation Window:</strong> ' + (info.start || 'N/A') + ' to ' + (info.end || 'N/A');
+                alertMsg.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+            } else {
+                badge.className = 'emp-chip emp-chip-inactive';
+                badge.innerHTML = '<i class="bi bi-lock me-1"></i> Window Closed';
+                statusBox.style.backgroundColor = '#fdf7f7';
+                statusBox.style.borderColor = '#fad2cf';
+                details.innerHTML = '<strong>Creation Window:</strong> ' + (info.start || 'N/A') + ' to ' + (info.end || 'N/A');
+                alertMsg.style.display = 'block';
+                alertMsg.textContent = info.message || 'Slot creation window is currently closed for this examination.';
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50');
+            }
+        }
+
+        examSelect.addEventListener('change', updateExamInfo);
+        // Trigger on initial page load if preselected
+        if (examSelect.value) {
+            updateExamInfo();
+        }
+    })();
+    </script>
+    {% else %}
+    <div class="text-center py-4 text-emp-secondary">
+        <i class="bi bi-journal-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-2">No examinations are currently open for slot creation.</p>
+        <a href="{{ url_for('examiner.exams') }}" class="emp-btn-outline emp-btn-sm">View Open Exams</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

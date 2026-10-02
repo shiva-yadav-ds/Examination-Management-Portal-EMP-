@@ -1,0 +1,446 @@
+{# admin/exam_detail.html - Single examination management hub.
+   Controls timeline configuration, lifecycle status transitions, and attached rubrics. Route: admin.exam_detail #}
+{% extends "base.html" %}
+
+{% block title %}{{ exam.name }} - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.exams') }}" class="text-decoration-none">Examinations</a></li>
+            <li class="breadcrumb-item active">{{ exam.name }}</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-start justify-content-between">
+        <div>
+            <h1 class="mb-1">{{ exam.name }}</h1>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-emp-secondary">{{ exam.course.code }} - {{ exam.course.name }}</span>
+                <span class="text-muted">|</span>
+                <span class="text-emp-secondary">{{ exam.type }}</span>
+                <span class="text-muted">|</span>
+                {% if exam.status == 'Draft' %}
+                    <span class="emp-chip" style="background:#f1f3f4;color:var(--emp-text-secondary);">Draft</span>
+                {% elif exam.status == 'Slot Creation' %}
+                    <span class="emp-chip emp-chip-pending">Slot Creation</span>
+                {% elif exam.status == 'Booking Open' %}
+                    <span class="emp-chip emp-chip-active">Booking Open</span>
+                {% elif exam.status in ['Booking Closed', 'Closed'] %}
+                    <span class="emp-chip emp-chip-inactive">Booking Closed</span>
+                {% elif exam.status == 'Completed' %}
+                    <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
+                {% endif %}
+                {% if exam.results_published %}
+                    <span class="emp-chip emp-chip-active ms-1"><i class="bi bi-check-circle me-1"></i>Results Published</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Transition Controls -->
+<div class="emp-card mb-4">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-activity text-primary"></i>
+        <h2 class="h2 mb-0" style="font-size:1.05rem;">Lifecycle Controls</h2>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        {% if exam.status == 'Draft' %}
+            <form method="POST" action="{{ url_for('admin.open_slot_creation', exam_id=exam.id) }}">
+                <button type="submit" class="emp-btn-primary">
+                    <i class="bi bi-unlock-fill"></i> Open Slot Creation
+                </button>
+            </form>
+            <span class="text-emp-secondary" style="font-size:0.8125rem;">
+                <i class="bi bi-info-circle"></i> Slot creation and booking dates must be set below before opening.
+            </span>
+
+        {% elif exam.status == 'Slot Creation' %}
+            {% set active_slots = exam.slots | selectattr('status', 'ne', 'Cancelled') | list %}
+            {% set has_slots = (active_slots | length) > 0 %}
+            {% set has_booking_window = (exam.booking_start and exam.booking_end and exam.booking_start < exam.booking_end) %}
+            {% set can_open_booking = has_slots and has_booking_window %}
+            <div>
+                <form method="POST" action="{{ url_for('admin.open_booking', exam_id=exam.id) }}" style="display:inline;">
+                    <button type="submit" class="emp-btn-primary" {% if not can_open_booking %}disabled style="opacity:0.6; cursor:not-allowed;" title="Cannot open: requirements not met"{% endif %}>
+                        <i class="bi bi-calendar-check"></i> Open Student Booking
+                    </button>
+                </form>
+            </div>
+
+            {% if can_open_booking %}
+                <div class="w-100 mt-2">
+                    <span class="emp-chip emp-chip-active">
+                        <i class="bi bi-check-circle me-1"></i> Ready to Open: {{ active_slots|length }} active slot(s) scheduled and booking dates configured.
+                    </span>
+                </div>
+            {% else %}
+                <div class="w-100 mt-2">
+                    {% if not has_slots %}
+                    <div class="alert alert-warning py-2 px-3 mb-1 d-flex align-items-center gap-2" style="font-size:0.8125rem;">
+                        <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                        <span><strong>Cannot open student booking:</strong> No active slots exist. Faculty examiners must create at least 1 slot during the slot creation window before booking can be opened.</span>
+                    </div>
+                    {% endif %}
+                    {% if not has_booking_window %}
+                    <div class="alert alert-warning py-2 px-3 mb-1 d-flex align-items-center gap-2" style="font-size:0.8125rem;">
+                        <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                        <span><strong>Cannot open student booking:</strong> Booking start and end datetimes must be configured below (Booking start must be before booking end).</span>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% elif exam.status == 'Booking Open' %}
+            <form method="POST" action="{{ url_for('admin.close_booking', exam_id=exam.id) }}"
+                data-lifecycle-confirm
+                data-confirm-title="Close booking?"
+                data-confirm-message="Students will no longer be able to book or cancel this examination."
+                data-confirm-button="Close booking"
+                data-confirm-variant="danger">
+                <button type="submit" class="emp-btn-danger">
+                    <i class="bi bi-lock-fill"></i> Close Booking
+                </button>
+            </form>
+            <span class="text-emp-secondary" style="font-size:0.8125rem;">
+                <i class="bi bi-info-circle"></i> This stops new bookings immediately, even if the booking window dates are still in the future.
+            </span>
+
+        {% elif exam.status in ['Booking Closed', 'Closed'] %}
+            <form method="POST" action="{{ url_for('admin.complete_exam', exam_id=exam.id) }}"
+                data-lifecycle-confirm
+                data-confirm-title="Mark examination as completed?"
+                data-confirm-message="All active bookings must already have complete evaluations."
+                data-confirm-button="Mark completed"
+                data-confirm-variant="primary">
+                <button type="submit" class="emp-btn-primary">
+                    <i class="bi bi-check-circle-fill"></i> Mark as Completed
+                </button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.publish_results', exam_id=exam.id) }}"
+                data-lifecycle-confirm
+                data-confirm-title="Publish results?"
+                data-confirm-message="Students will be able to see their scores and remarks."
+                data-confirm-button="Publish results"
+                data-confirm-variant="primary">
+                <button type="submit" class="emp-btn-outline">
+                    <i class="bi bi-send-check-fill"></i> Publish Results
+                </button>
+            </form>
+
+        {% elif exam.status == 'Completed' and not exam.results_published %}
+            <form method="POST" action="{{ url_for('admin.publish_results', exam_id=exam.id) }}"
+                data-lifecycle-confirm
+                data-confirm-title="Publish results?"
+                data-confirm-message="Students will be able to see their scores and remarks."
+                data-confirm-button="Publish results"
+                data-confirm-variant="primary">
+                <button type="submit" class="emp-btn-primary">
+                    <i class="bi bi-send-check-fill"></i> Publish Results
+                </button>
+            </form>
+
+        {% elif exam.results_published %}
+            <span class="emp-chip emp-chip-active">
+                <i class="bi bi-check-circle me-1"></i> Results published to students
+            </span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Exam Info + Edit -->
+<div class="emp-card mb-4">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-info-circle text-primary"></i>
+        <h2 class="h2 mb-0" style="font-size:1.05rem;">Examination Details</h2>
+        {% if exam.status in ['Draft', 'Slot Creation', 'Booking Open'] %}
+        <button class="emp-btn-outline emp-btn-sm ms-auto"
+            data-bs-toggle="collapse" data-bs-target="#edit-exam-form">
+            <i class="bi bi-pencil"></i> Edit Details & Timelines
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="row g-3 mb-2">
+        <div class="col-6 col-md-3">
+            <div class="emp-label">Duration</div>
+            <div class="fw-medium">{{ exam.duration }} minutes</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-label">Max Marks</div>
+            <div class="fw-medium">{{ exam.max_marks }}</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-label">Slot Window</div>
+            <div class="fw-medium" style="font-size:0.8125rem;">
+                {% if exam.slot_creation_start %}
+                    {{ exam.slot_creation_start.strftime('%d %b %Y %H:%M') }} to {{ exam.slot_creation_end.strftime('%d %b %Y %H:%M') }}
+                {% else %}
+                    <span class="text-muted">Not set</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-label">Booking Window</div>
+            <div class="fw-medium" style="font-size:0.8125rem;">
+                {% if exam.booking_start %}
+                    {{ exam.booking_start.strftime('%d %b %Y %H:%M') }} to {{ exam.booking_end.strftime('%d %b %Y %H:%M') }}
+                {% else %}
+                    <span class="text-muted">Not set</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline Edit Form (Draft and Slot Creation phases, collapsible) -->
+    {% if exam.status in ['Draft', 'Slot Creation', 'Booking Open'] %}
+    <div class="collapse mt-3" id="edit-exam-form">
+        <hr>
+        <form method="POST" action="{{ url_for('admin.edit_exam', exam_id=exam.id) }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="emp-label">Exam Name</label>
+                    <input type="text" class="emp-input" name="name" value="{{ exam.name }}" required maxlength="150">
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Type</label>
+                    <select class="emp-input emp-select" name="type" required>
+                        {% for t in exam_types %}
+                        <option value="{{ t }}" {% if exam.type == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label class="emp-label">Duration</label>
+                    <input type="number" class="emp-input" name="duration" value="{{ exam.duration }}" min="1" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="emp-label">Max Marks</label>
+                    <input type="number" class="emp-input" name="max_marks" value="{{ exam.max_marks }}" min="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Slot Opens</label>
+                    <input type="datetime-local" class="emp-input" name="slot_creation_start"
+                        value="{{ exam.slot_creation_start.strftime('%Y-%m-%dT%H:%M') if exam.slot_creation_start else '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Slot Closes</label>
+                    <input type="datetime-local" class="emp-input" name="slot_creation_end"
+                        value="{{ exam.slot_creation_end.strftime('%Y-%m-%dT%H:%M') if exam.slot_creation_end else '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Booking Opens</label>
+                    <input type="datetime-local" class="emp-input" name="booking_start"
+                        value="{{ exam.booking_start.strftime('%Y-%m-%dT%H:%M') if exam.booking_start else '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Booking Closes</label>
+                    <input type="datetime-local" class="emp-input" name="booking_end"
+                        value="{{ exam.booking_end.strftime('%Y-%m-%dT%H:%M') if exam.booking_end else '' }}">
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="button" class="emp-btn-outline emp-btn-sm"
+                        data-bs-toggle="collapse" data-bs-target="#edit-exam-form">Cancel</button>
+                    <button type="submit" class="emp-btn-primary emp-btn-sm">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Scheduled Slots Section -->
+<div class="emp-card p-0 overflow-hidden mb-4">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Scheduled Examination Slots ({{ exam.slots|selectattr('status', 'ne', 'Cancelled')|list|length }})</h2>
+        </div>
+        <div>
+            {% if exam.status == 'Slot Creation' %}
+            <span class="emp-chip emp-chip-pending" style="font-size:0.75rem;">
+                <i class="bi bi-hourglass-split me-1"></i> Slot Creation Phase
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% set active_exam_slots = exam.slots | selectattr('status', 'ne', 'Cancelled') | list %}
+    {% if active_exam_slots %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Slot Date</th>
+                    <th>Time Window</th>
+                    <th>Examiner</th>
+                    <th>Capacity</th>
+                    <th>Booked Candidates</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in active_exam_slots %}
+                <tr>
+                    <td><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
+                    <td>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
+                    <td><span class="fw-medium">{{ slot.examiner.name }}</span></td>
+                    <td>{{ slot.capacity }} students</td>
+                    <td>
+                        <span class="fw-semibold">{{ slot.capacity - slot.available_seats }}</span> / {{ slot.capacity }}
+                    </td>
+                    <td>
+                        {% if slot.status == 'Available' %}
+                            <span class="emp-chip emp-chip-active" style="font-size:0.7rem;">Available</span>
+                        {% elif slot.status == 'Booked' %}
+                            <span class="emp-chip emp-chip-pending" style="font-size:0.7rem;">Fully Booked</span>
+                        {% elif slot.status == 'Completed' %}
+                            <span class="emp-chip emp-chip-neutral" style="font-size:0.7rem;">Completed</span>
+                        {% else %}
+                            <span class="emp-chip emp-chip-inactive" style="font-size:0.7rem;">{{ slot.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-3 text-emp-secondary" style="font-size:0.875rem;">
+        <i class="bi bi-info-circle"></i> No active slots created yet. Faculty examiners will create slots during the Slot Creation window.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Rubrics Section -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-list-check text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Evaluation Rubrics</h2>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-emp-secondary" style="font-size:0.8125rem;">
+                Rubric total: <strong>{{ rubric_total }}</strong> / {{ exam.max_marks }} marks
+            </span>
+            {% if rubric_total < exam.max_marks %}
+            <span class="emp-chip emp-chip-pending" style="font-size:0.7rem;">{{ exam.max_marks - rubric_total }} marks unallocated</span>
+            {% elif rubric_total == exam.max_marks %}
+            <span class="emp-chip emp-chip-active" style="font-size:0.7rem;">Fully allocated</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if exam.rubrics %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Criterion</th>
+                    <th>Max Marks</th>
+                    <th>Weightage</th>
+                    <th>Description</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rubric in exam.rubrics %}
+                <tr>
+                    <td><span class="fw-medium">{{ rubric.criterion_name }}</span></td>
+                    <td>{{ rubric.max_marks }}</td>
+                    <td>{{ "%.1f%%"|format(rubric.weightage) if rubric.weightage else "-" }}</td>
+                    <td><span class="text-emp-secondary">{{ rubric.description or "-" }}</span></td>
+                    <td style="text-align:right;">
+                        {% if not rubric.evaluations %}
+                        <button
+                            class="emp-btn-outline emp-btn-sm"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#edit-rubric-{{ rubric.id }}"
+                        >
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <form method="POST" action="{{ url_for('admin.delete_rubric', exam_id=exam.id, rubric_id=rubric.id) }}"
+                            style="display:inline;"
+                            onsubmit="return confirm('Delete this rubric criterion?');">
+                            <button type="submit" class="emp-btn-danger-outline">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-emp-secondary" style="font-size:0.75rem;">Evaluations exist</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if not rubric.evaluations %}
+                <tr class="collapse" id="edit-rubric-{{ rubric.id }}">
+                    <td colspan="5" style="background:#fafbfc; padding:1rem;">
+                        <form method="POST" action="{{ url_for('admin.edit_rubric', exam_id=exam.id, rubric_id=rubric.id) }}">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="emp-label">Criterion Name</label>
+                                    <input type="text" class="emp-input" name="criterion_name" value="{{ rubric.criterion_name }}" required maxlength="100">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="emp-label">Max Marks</label>
+                                    <input type="number" class="emp-input" name="max_marks" value="{{ rubric.max_marks }}" min="1" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="emp-label">Weightage %</label>
+                                    <input type="number" class="emp-input" name="weightage" value="{{ rubric.weightage if rubric.weightage is not none else '' }}" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="emp-label">Description</label>
+                                    <input type="text" class="emp-input" name="description" value="{{ rubric.description or '' }}">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="emp-btn-primary emp-btn-sm w-100">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-3 text-emp-secondary" style="font-size:0.875rem;">
+        <i class="bi bi-info-circle"></i> No rubrics yet. Add criteria below to define how students are evaluated.
+    </div>
+    {% endif %}
+
+    <!-- Add Rubric Form -->
+    <div class="p-3 border-top" style="background:#fafbfc;">
+        <p class="emp-label mb-2">Add Rubric Criterion</p>
+        <form method="POST" action="{{ url_for('admin.add_rubric', exam_id=exam.id) }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="emp-label">Criterion Name <span class="text-danger">*</span></label>
+                    <input type="text" class="emp-input" name="criterion_name" placeholder="e.g. Communication" required maxlength="100">
+                </div>
+                <div class="col-md-2">
+                    <label class="emp-label">Max Marks <span class="text-danger">*</span></label>
+                    <input type="number" class="emp-input" name="max_marks" min="1" placeholder="e.g. 20" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="emp-label">Weightage %</label>
+                    <input type="number" class="emp-input" name="weightage" min="0" max="100" step="0.1" placeholder="e.g. 25">
+                </div>
+                <div class="col-md-3">
+                    <label class="emp-label">Description</label>
+                    <input type="text" class="emp-input" name="description" placeholder="Optional description">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="emp-btn-primary w-100">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

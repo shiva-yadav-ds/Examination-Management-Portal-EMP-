@@ -1,0 +1,148 @@
+{# student/dashboard.html - Student home dashboard.
+   Shows upcoming confirmed exam appointments, open exams count, and bookings summary. Route: student.dashboard #}
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1>Welcome, {{ current_user.name }}</h1>
+    <p class="text-emp-secondary mb-0">
+        Roll No: <strong>{{ current_user.roll_no or 'Not set' }}</strong> | Examination Management Portal
+    </p>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> Open Exams</div>
+            <div class="emp-stat-value">{{ open_exams_count }}</div>
+            <div class="emp-stat-subtext">Accepting candidate bookings</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> My Bookings</div>
+            <div class="emp-stat-value">{{ my_bookings_count }}</div>
+            <div class="emp-stat-subtext">Total reservations made</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> Published Results</div>
+            <div class="emp-stat-value">{{ published_results_count }}</div>
+            <div class="emp-stat-subtext">Evaluated and released</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-search text-primary fs-5"></i>
+                <h3 class="h3 mb-0">Browse Exams</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">Explore open examinations and select available time slots.</p>
+            <a href="{{ url_for('student.exams') }}" class="emp-btn-primary emp-btn-sm">
+                Explore Exams <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-calendar3 text-primary fs-5"></i>
+                <h3 class="h3 mb-0">My Schedule</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">Check your upcoming appointment dates, timings, and examiners.</p>
+            <a href="{{ url_for('student.schedule') }}" class="emp-btn-outline emp-btn-sm">
+                View Schedule <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-award text-primary fs-5"></i>
+                <h3 class="h3 mb-0">My Results</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">Review your scores, feedback, and rubric performance breakdown.</p>
+            <a href="{{ url_for('student.results') }}" class="emp-btn-outline emp-btn-sm">
+                Check Results <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Slots Section -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-calendar-event text-primary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Upcoming Booked Exams</h2>
+        </div>
+        <a href="{{ url_for('student.bookings') }}" class="text-decoration-none" style="font-size:0.8125rem;">
+            All Bookings <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    {% if upcoming_bookings %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Examination</th>
+                    <th>Date & Time</th>
+                    <th>Examiner</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in upcoming_bookings %}
+                <tr>
+                    <td>
+                        <span class="fw-medium">{{ b.examination.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.examination.course.code }} | {{ b.examination.type }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.slot.start_time.strftime('%H:%M') }} - {{ b.slot.end_time.strftime('%H:%M') }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ b.slot.examiner.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.slot.examiner.examiner_profile.department if b.slot.examiner.examiner_profile and b.slot.examiner.examiner_profile.department else "Faculty" }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="emp-chip emp-chip-active">Booked</span>
+                    </td>
+                    <td style="text-align:right;">
+                        <a href="{{ url_for('student.bookings') }}" class="emp-btn-outline emp-btn-sm">
+                            Manage
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-calendar-check display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-2">No upcoming exam bookings scheduled.</p>
+        <a href="{{ url_for('student.exams') }}" class="emp-btn-primary emp-btn-sm">Browse Available Exams</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

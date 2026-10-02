@@ -1,0 +1,150 @@
+{# examiner/dashboard.html - Faculty home dashboard.
+   Shows counts for open exams, scheduled slots, candidates, and pending evaluations. Route: examiner.dashboard #}
+{% extends "base.html" %}
+
+{% block title %}Examiner Dashboard - EMP{% endblock %}
+
+{% block content %}
+
+{# --- Welcome Header --- #}
+<div class="mb-4">
+    <h1>Welcome, {{ current_user.name }}</h1>
+    <p class="text-emp-secondary mb-0">
+        {% if current_user.examiner_profile and current_user.examiner_profile.department %}
+            {{ current_user.examiner_profile.department }}
+        {% else %}
+            Faculty
+        {% endif %}
+        - Examination Management Portal
+    </p>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> Slot Creation Open</div>
+            <div class="emp-stat-value">{{ open_exams_count }}</div>
+            <div class="emp-stat-subtext">Exams accepting slots</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> My Slots</div>
+            <div class="emp-stat-value">{{ my_slots_count }}</div>
+            <div class="emp-stat-subtext">Active time slots</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header"><span class="emp-stat-dot"></span> Booked Candidates</div>
+            <div class="emp-stat-value">{{ booked_candidates_count }}</div>
+            <div class="emp-stat-subtext">Across all my slots</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="emp-stat-card {% if pending_count > 0 %}{% endif %}"
+            {% if pending_count > 0 %}style="border-color:#fce8e6; background-color:#fffbfa;"{% endif %}>
+            <div class="emp-stat-header"
+                {% if pending_count > 0 %}style="color:var(--emp-danger-text);"{% endif %}>
+                <span class="emp-stat-dot"
+                    {% if pending_count > 0 %}style="background-color:var(--emp-danger-text);"{% endif %}></span>
+                Pending Evaluations
+            </div>
+            <div class="emp-stat-value"
+                {% if pending_count > 0 %}style="color:var(--emp-danger-text);"{% endif %}>
+                {{ pending_count }}
+            </div>
+            <div class="emp-stat-subtext">Booked students awaiting marks</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-plus-circle text-primary fs-5"></i>
+                <h3 class="h3 mb-0">Create a Slot</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">Schedule a new exam time slot for an open examination.</p>
+            <a href="{{ url_for('examiner.create_slot') }}" class="emp-btn-primary emp-btn-sm">
+                New Slot <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-clock text-primary fs-5"></i>
+                <h3 class="h3 mb-0">My Slots</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">View and manage all your scheduled time slots.</p>
+            <a href="{{ url_for('examiner.slots') }}" class="emp-btn-outline emp-btn-sm">
+                View Slots <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-person-lines-fill text-primary fs-5"></i>
+                <h3 class="h3 mb-0">Profile</h3>
+            </div>
+            <p class="text-emp-secondary mb-3">Update your department, contact, and faculty details.</p>
+            <a href="{{ url_for('examiner.profile') }}" class="emp-btn-outline emp-btn-sm">
+                Edit Profile <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Evaluations List -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-circle {% if pending_evaluations %}text-danger{% else %}text-secondary{% endif %}"></i>
+        <h2 class="h2 mb-0" style="font-size:1.1rem;">Pending Evaluations</h2>
+        {% if pending_evaluations %}
+        <span class="emp-chip emp-chip-inactive ms-1">Action Required</span>
+        {% endif %}
+    </div>
+    {% if pending_evaluations %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Examination</th>
+                    <th>Slot Date</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in pending_evaluations %}
+                <tr>
+                    <td>
+                        <span class="fw-medium">{{ b.student.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">{{ b.student.roll_no or 'No Roll No' }}</div>
+                    </td>
+                    <td>{{ b.examination.name }}</td>
+                    <td>{{ b.slot.exam_date.strftime('%d %b %Y') }}</td>
+                    <td style="text-align:right;">
+                        <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="emp-btn-primary emp-btn-sm">
+                            <i class="bi bi-pencil-square"></i> Evaluate
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-check-circle display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No pending evaluations. When students book your slots, they will appear here for rubric scoring.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

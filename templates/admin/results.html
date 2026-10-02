@@ -1,0 +1,148 @@
+{# admin/results.html - Master gradebook view.
+   Shows completed evaluations for each examination with rubric score breakdowns. Route: admin.results #}
+{% extends "base.html" %}
+
+{% block title %}Examination Results & History - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+                <li class="breadcrumb-item active">Results & History</li>
+            </ol>
+        </nav>
+        <h1>Examination Results & Scoring History</h1>
+        <p class="text-emp-secondary mb-0">Review completed evaluations, per-rubric score breakdowns, and evaluator remarks.</p>
+    </div>
+</div>
+
+<!-- Exam Selector Card -->
+<div class="emp-card mb-4 p-3">
+    <form method="GET" action="{{ url_for('admin.results') }}" class="row g-2 align-items-center">
+        <div class="col-md-9">
+            <label class="emp-label mb-1">Select Examination to View Records</label>
+            <select class="emp-input emp-select" name="exam_id" onchange="this.form.submit()">
+                <option value=""> - Select an examination - </option>
+                {% for e in exams %}
+                <option value="{{ e.id }}" {% if selected_exam and selected_exam.id == e.id %}selected{% endif %}>
+                    {{ e.course.code }} &bull; {{ e.name }} ({{ e.status }}{% if e.results_published %}, Published{% endif %})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="emp-btn-primary emp-btn-sm w-100" style="margin-top:1.5rem;">
+                <i class="bi bi-filter"></i> Load Results
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if selected_exam %}
+<!-- Exam Summary Banner -->
+<div class="emp-card mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h2 class="h2 mb-1">{{ selected_exam.name }}</h2>
+            <div class="text-emp-secondary" style="font-size:0.875rem;">
+                {{ selected_exam.course.code }} - {{ selected_exam.course.name }} &bull; {{ selected_exam.type }} &bull; Max Marks: <strong>{{ selected_exam.max_marks }}</strong>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if selected_exam.results_published %}
+                <span class="emp-chip emp-chip-active"><i class="bi bi-check-circle-fill me-1"></i> Results Published</span>
+            {% else %}
+                <span class="emp-chip emp-chip-pending"><i class="bi bi-eye-slash me-1"></i> Not Yet Published to Students</span>
+            {% endif %}
+            <a href="{{ url_for('admin.exam_detail', exam_id=selected_exam.id) }}" class="emp-btn-outline emp-btn-sm">
+                Exam Controls
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Evaluated Candidates Table -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clipboard-data text-secondary"></i>
+            <h3 class="h3 mb-0" style="font-size:1.1rem;">Candidate Evaluations ({{ bookings|length }})</h3>
+        </div>
+    </div>
+
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Slot & Evaluator</th>
+                    <th>Rubric Breakdown</th>
+                    <th>Total Score</th>
+                    <th>Evaluated On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                {% set total_score = b.evaluations|sum(attribute='marks') %}
+                <tr>
+                    <td>
+                        <span class="fw-medium">{{ b.student.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ b.student.roll_no or "No Roll No" }} &bull; {{ b.student.email }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ b.slot.exam_date.strftime('%d %b %Y') }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            Examiner: {{ b.slot.examiner.name }}
+                        </div>
+                    </td>
+                    <td>
+                        <ul class="list-unstyled mb-0" style="font-size:0.8125rem;">
+                            {% for ev in b.evaluations %}
+                            <li>
+                                <strong>{{ ev.rubric.criterion_name }}:</strong> {{ ev.marks }} / {{ ev.rubric.max_marks }}
+                                {% if ev.remarks %}
+                                <span class="text-emp-secondary">({{ ev.remarks }})</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <span class="fs-6 fw-bold text-primary">{{ total_score }}</span>
+                        <span class="text-emp-secondary" style="font-size:0.8125rem;">/ {{ selected_exam.max_marks }}</span>
+                    </td>
+                    <td>
+                        <span style="font-size:0.8125rem;">
+                            {% if b.evaluations and b.evaluations[0].evaluated_at %}
+                                {{ b.evaluations[0].evaluated_at.strftime('%d %b %Y') }}
+                            {% else %}
+ - 
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-file-earmark-text display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No completed evaluations found for this examination yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="emp-card p-5 text-center text-emp-secondary">
+    <i class="bi bi-journal-check display-6 d-block mb-3 text-muted"></i>
+    <p class="mb-0">Select an examination from the dropdown above to view scoring records.</p>
+</div>
+{% endif %}
+
+{% endblock %}

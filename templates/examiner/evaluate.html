@@ -1,0 +1,129 @@
+{# examiner/evaluate.html - Rubric evaluation scoring form.
+   Dynamic form displaying rubric criteria where faculty inputs marks and feedback. Route: examiner.evaluate #}
+{% extends "base.html" %}
+
+{% block title %}Evaluate - {{ booking.student.name }}{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('examiner.slot_students', slot_id=booking.slot_id) }}" class="text-decoration-none">Slot Students</a></li>
+            <li class="breadcrumb-item active">Evaluate</li>
+        </ol>
+    </nav>
+    <h1>Evaluation - {{ booking.student.name }}</h1>
+    <p class="text-emp-secondary mb-0">
+        {{ exam.name }} - {{ booking.slot.exam_date.strftime('%d %b %Y') }},
+        {{ booking.slot.start_time.strftime('%H:%M') }}
+    </p>
+</div>
+
+<!-- Candidate Summary -->
+<div class="emp-card mb-4 py-2 px-3 d-flex flex-wrap gap-4">
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Roll Number</div>
+        <div class="fw-medium">{{ booking.student.roll_no or '-' }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Email</div>
+        <div class="fw-medium">{{ booking.student.email }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Exam Type</div>
+        <div class="fw-medium">{{ exam.type }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Max Marks</div>
+        <div class="fw-medium">{{ exam.max_marks }}</div>
+    </div>
+    <div>
+        <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Status</div>
+        <div class="fw-medium">
+            {% if booking.status == 'Completed' %}
+                <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Already Evaluated</span>
+            {% else %}
+                <span class="emp-chip emp-chip-active">Booked</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if not rubrics %}
+<div class="emp-card p-4 text-center text-emp-secondary">
+    <i class="bi bi-exclamation-triangle display-6 d-block mb-2 text-muted"></i>
+    <p class="mb-2">No rubric criteria have been defined for this examination yet.</p>
+    <p class="text-emp-secondary" style="font-size:0.875rem;">Contact the admin to add evaluation criteria before proceeding.</p>
+</div>
+{% else %}
+<div class="emp-card">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-list-check text-primary fs-5"></i>
+        <h2 class="h2 mb-0">Scoring Rubric</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('examiner.evaluate', booking_id=booking.id) }}">
+        {% for r in rubrics %}
+        {% set prev = existing_scores.get(r.id) %}
+        <div class="emp-card mb-3" style="border:1px solid var(--emp-border); box-shadow:none;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div>
+                    <span class="fw-medium" style="font-size:1rem;">{{ r.criterion_name }}</span>
+                    {% if r.weightage %}
+                        <span class="text-emp-secondary ms-2" style="font-size:0.8125rem;">({{ "%.0f"|format(r.weightage) }}% weight)</span>
+                    {% endif %}
+                </div>
+                <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue); font-size:0.8125rem;">
+                    / {{ r.max_marks }} marks
+                </span>
+            </div>
+
+            {% if r.description %}
+            <p class="text-emp-secondary mb-3" style="font-size:0.875rem;">{{ r.description }}</p>
+            {% endif %}
+
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="emp-label">Marks <span class="text-danger">*</span> (0 - {{ r.max_marks }})</label>
+                    <input
+                        type="number"
+                        class="emp-input"
+                        name="marks_{{ r.id }}"
+                        min="0"
+                        max="{{ r.max_marks }}"
+                        step="0.5"
+                        value="{{ prev.marks if prev else '' }}"
+                        required
+                    >
+                </div>
+                <div class="col-md-9">
+                    <label class="emp-label">Remarks (optional)</label>
+                    <input
+                        type="text"
+                        class="emp-input"
+                        name="remarks_{{ r.id }}"
+                        placeholder="e.g. Good understanding but needs improvement in explanation"
+                        value="{{ prev.remarks if prev and prev.remarks else '' }}"
+                        maxlength="255"
+                    >
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('examiner.slot_students', slot_id=booking.slot_id) }}" class="emp-btn-outline">
+                Back
+            </a>
+            <button type="submit" class="emp-btn-primary">
+                <i class="bi bi-check-lg"></i>
+                {% if booking.status == 'Completed' %}Update Evaluation{% else %}Submit Evaluation{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

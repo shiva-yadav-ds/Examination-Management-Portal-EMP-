@@ -1,0 +1,97 @@
+{# admin/students.html - Candidate directory.
+   Lists all registered students with live search by name, email, or roll number. Route: admin.students #}
+{% extends "base.html" %}
+
+{% block title %}Students Directory - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+                <li class="breadcrumb-item active">Students</li>
+            </ol>
+        </nav>
+        <h1>Student Directory</h1>
+        <p class="text-emp-secondary mb-0">Browse all registered students, check roll numbers, and view candidate participation.</p>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="emp-card mb-4 p-3">
+    <form method="GET" action="{{ url_for('admin.students') }}" class="row g-2 align-items-center">
+        <div class="col-md-9">
+            <input
+                type="text"
+                class="emp-input"
+                name="q"
+                value="{{ query or '' }}"
+                placeholder="Search students by name, email, or roll number..."
+            >
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="emp-btn-primary emp-btn-sm w-100">
+                <i class="bi bi-search"></i> Search
+            </button>
+            {% if query %}
+            <a href="{{ url_for('admin.students') }}" class="emp-btn-outline emp-btn-sm">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Students Table -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-mortarboard text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Registered Candidates ({{ students|length }})</h2>
+        </div>
+    </div>
+
+    {% if students %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Bookings</th>
+                    <th>Enrolled On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in students %}
+                <tr>
+                    <td>
+                        <strong class="text-primary" style="letter-spacing:0.3px;">{{ st.roll_no or "-" }}</strong>
+                    </td>
+                    <td><span class="fw-medium">{{ st.name }}</span></td>
+                    <td><span class="text-emp-secondary">{{ st.email }}</span></td>
+                    <td>{{ st.phone or "-" }}</td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ st.bookings|length }}</span>
+                    </td>
+                    <td><span style="font-size:0.8125rem;">{{ st.created_at.strftime('%d %b %Y') }}</span></td>
+                    <td>
+                        <span class="emp-chip emp-chip-active">Active</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-people display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No students found{% if query %} matching "{{ query }}"{% endif %}.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

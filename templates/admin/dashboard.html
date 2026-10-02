@@ -1,0 +1,136 @@
+{# admin/dashboard.html - Administrator main dashboard.
+   Displays summary metrics, pending examiner alerts, and quick management links. Route: admin.dashboard #}
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1>Admin Dashboard</h1>
+    <p class="text-emp-secondary mb-0">Overview of examinations, course curricula, and evaluator approvals across the portal.</p>
+</div>
+
+{# --- Stat Cards --- #}
+<!-- Metrics Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header">
+                <span class="emp-stat-dot"></span> Courses
+            </div>
+            <div class="emp-stat-value">{{ course_count }}</div>
+            <div class="emp-stat-subtext">Active & registered</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header">
+                <span class="emp-stat-dot"></span> Examinations
+            </div>
+            <div class="emp-stat-value">{{ examination_count }}</div>
+            <div class="emp-stat-subtext">Created schedules</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header">
+                <span class="emp-stat-dot"></span> Examiners
+            </div>
+            <div class="emp-stat-value">{{ examiner_count }}</div>
+            <div class="emp-stat-subtext">Registered faculty</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg">
+        <div class="emp-stat-card">
+            <div class="emp-stat-header">
+                <span class="emp-stat-dot"></span> Students
+            </div>
+            <div class="emp-stat-value">{{ student_count }}</div>
+            <div class="emp-stat-subtext">Enrolled candidates</div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg">
+        <div class="emp-stat-card" {% if pending_examiner_count > 0 %}style="border-color: #fce8e6; background-color: #fffbfa;"{% endif %}> <!-- highlight card red if there are pending approvals -->
+            <div class="emp-stat-header" {% if pending_examiner_count > 0 %}style="color: var(--emp-danger-text);"{% endif %}>
+                <span class="emp-stat-dot" {% if pending_examiner_count > 0 %}style="background-color: var(--emp-danger-text);"{% endif %}></span> Pending Approval
+            </div>
+            <div class="emp-stat-value" {% if pending_examiner_count > 0 %}style="color: var(--emp-danger-text);"{% endif %}>{{ pending_examiner_count }}</div>
+            <div class="emp-stat-subtext">Awaiting admin review</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action & Management Modules -->
+<div class="mb-4">
+    <h2 class="h2">Management Modules</h2>
+    <p class="text-emp-secondary">Direct access to core administrative functions and scheduling controls.</p>
+</div>
+
+<div class="row g-3">
+    <!-- Courses Card -->
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-book text-primary fs-5"></i>
+                    <h3 class="h3 mb-0">Course Management</h3>
+                </div>
+                <p class="text-emp-secondary mb-3">
+                    Add new course offerings, update descriptions, and manage curriculum status.
+                </p>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('admin.courses') }}" class="emp-btn-primary emp-btn-sm">
+                    Manage Courses <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examinations Card -->
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-journal-check text-primary fs-5"></i>
+                    <h3 class="h3 mb-0">Examinations</h3>
+                </div>
+                <p class="text-emp-secondary mb-3">
+                    Schedule exams, set slot creation and booking windows, and define scoring rubrics.
+                </p>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('admin.exams') }}" class="emp-btn-primary emp-btn-sm">
+                    View Exams <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examiners Card -->
+    <div class="col-md-4">
+        <div class="emp-stat-card">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-person-check text-primary fs-5"></i>
+                    <h3 class="h3 mb-0">Examiner Approvals</h3>
+                </div>
+                <p class="text-emp-secondary mb-3">
+                    Verify examiner applications, approve pending faculty, or add evaluators directly.
+                </p>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('admin.examiners') }}" class="emp-btn-outline emp-btn-sm">
+                    Review Faculty
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

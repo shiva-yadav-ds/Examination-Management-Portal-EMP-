@@ -1,0 +1,61 @@
+{# auth/register_examiner.html - Public examiner registration form.
+   Registers a faculty account with status 'pending' awaiting admin approval. Route: auth.register_examiner #}
+{% extends "base.html" %}
+
+{% block title %}Examiner Registration - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="emp-auth-wrapper">
+    <div class="emp-auth-card" style="max-width: 480px;">
+        <div class="text-center mb-4">
+            <span class="fs-1 text-primary"><i class="bi bi-briefcase-fill"></i></span>
+            <h1 class="emp-auth-title">Examiner Registration</h1>
+            <p class="emp-auth-subtitle">Sign up to manage exam slots and evaluate students. Account requires admin approval before activation.</p>
+        </div>
+
+        <form method="POST">
+            <div class="emp-form-group">
+                <label for="name" class="emp-label">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="emp-input" id="name" name="name" placeholder="e.g. Dr. Priya Mehta" required autocomplete="name">
+            </div>
+
+            <div class="emp-form-group">
+                <label for="email" class="emp-label">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="emp-input" id="email" name="email" placeholder="name@examiner.local" required autocomplete="email">
+            </div>
+
+            <div class="emp-form-group">
+                <label for="password" class="emp-label">Password <span class="text-danger">*</span></label>
+                <div class="position-relative">
+                    <input type="password" class="emp-input" id="password" name="password" placeholder="Create a secure password" required autocomplete="new-password" style="padding-right: 2.75rem;">
+                    <button type="button" class="btn border-0 p-0 position-absolute end-0 top-50 translate-middle-y me-3 text-secondary btn-toggle-password" style="cursor: pointer; background: transparent; line-height: 1;" aria-label="Show password">
+                        <i class="bi bi-eye fs-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="department" class="emp-label">Department</label>
+                    <input type="text" class="emp-input" id="department" name="department" placeholder="e.g. Computer Science">
+                </div>
+                <div class="col-md-6">
+                    <label for="contact" class="emp-label">Contact Number</label>
+                    <input type="tel" class="emp-input" id="contact" name="contact" placeholder="e.g. 9123456780">
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="emp-btn-primary w-100">Submit for Approval</button>
+            </div>
+        </form>
+
+        <hr class="my-4" style="border-color: var(--emp-border);">
+
+        <div class="text-center" style="font-size: 0.875rem;">
+            <span class="text-emp-secondary">Already approved? </span>
+            <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-medium text-primary">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

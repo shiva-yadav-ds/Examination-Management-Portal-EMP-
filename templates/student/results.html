@@ -1,0 +1,118 @@
+{# student/results.html - Official examination scorecards.
+   Shows published exam scores, rubric level score breakdown, and faculty remarks. Route: student.results #}
+{% extends "base.html" %}
+
+{% block title %}My Examination Results - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Results</li>
+            </ol>
+        </nav>
+        <h1>Examination Results</h1>
+        <p class="text-emp-secondary mb-0">Official scores, rubric performance breakdown, and examiner feedback.</p>
+    </div>
+</div>
+
+{% if awaiting_publication %}
+<div class="emp-card mb-4" style="border-color:#fde68a; background:#fffbeb;">
+    <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-hourglass-split text-warning mt-1"></i>
+        <div>
+            <h3 class="h3 mb-1" style="font-size:1rem;">Evaluated - awaiting publication</h3>
+            <ul class="mb-0 ps-3 text-emp-secondary" style="font-size:0.875rem;">
+                {% for b in awaiting_publication %}
+                <li>{{ b.examination.course.code }} - {{ b.examination.name }} ({{ b.slot.exam_date.strftime('%d %b %Y') }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if bookings %}
+    {% for b in bookings %}
+    {% set total_score = b.evaluations|sum(attribute='marks') %}
+    <div class="emp-card mb-4 p-0 overflow-hidden">
+        <!-- Exam Header -->
+        <div class="p-3 border-bottom bg-white d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="text-primary fw-medium" style="letter-spacing:0.3px;">{{ b.examination.course.code }}</span>
+                    <span class="text-emp-secondary">|</span>
+                    <h2 class="h2 mb-0" style="font-size:1.15rem;">{{ b.examination.name }}</h2>
+                    <span class="emp-chip emp-chip-active ms-2">Published</span>
+                </div>
+                <div class="text-emp-secondary" style="font-size:0.8125rem;">
+                    Conducted on {{ b.slot.exam_date.strftime('%d %b %Y') }} | Examiner: <strong>{{ b.slot.examiner.name }}</strong>
+                </div>
+            </div>
+
+            <!-- Score Badge -->
+            <div class="text-end">
+                <div class="text-emp-secondary" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Total Score</div>
+                <div class="fs-4 fw-bold text-primary">
+                    {{ total_score }} <span class="fs-6 text-emp-secondary fw-normal">/ {{ b.examination.max_marks }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rubric Breakdown Table -->
+        {% if b.evaluations %}
+        <div class="table-responsive">
+            <table class="emp-table">
+                <thead>
+                    <tr>
+                        <th>Criterion</th>
+                        <th>Score</th>
+                        <th>Remarks & Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ev in b.evaluations %}
+                    <tr>
+                        <td style="max-width:300px;">
+                            <span class="fw-medium">{{ ev.rubric.criterion_name }}</span>
+                            {% if ev.rubric.description %}
+                            <div class="text-emp-secondary" style="font-size:0.75rem;">{{ ev.rubric.description }}</div>
+                            {% endif %}
+                        </td>
+<td>
+                             <span class="fw-bold">{{ ev.marks }}</span> / {{ ev.rubric.max_marks }}
+                             {% if ev.rubric.weightage %}
+                             <span class="text-emp-secondary ms-1" style="font-size:0.75rem;">(Weightage {{ "%.0f"|format(ev.rubric.weightage) }}%)</span>
+                             {% endif %}
+                         </td>
+                        <td>
+                            {% if ev.remarks %}
+                                <span class="text-dark">{{ ev.remarks }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-3 text-emp-secondary" style="font-size:0.875rem;">
+            No criterion-level marks recorded.
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% elif not awaiting_publication %}
+<div class="emp-card p-5 text-center text-emp-secondary">
+    <i class="bi bi-award display-5 d-block mb-3 text-muted"></i>
+    <h3 class="h3 mb-1">No published results yet</h3>
+    <p class="mb-0">When your examiners complete grading and the administrator publishes the results, they will appear here.</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,67 @@
+{# admin/examiners_add.html - Direct examiner onboarding form.
+   Enables admins to create an immediately active faculty account with department details. Route: admin.add_examiner #}
+{% extends "base.html" %}
+
+{% block title %}Add Examiner - EMP{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.examiners') }}" class="text-decoration-none">Examiners</a></li>
+            <li class="breadcrumb-item active">Add Examiner</li>
+        </ol>
+    </nav>
+    <h1>Add Examiner</h1>
+    <p class="text-emp-secondary mb-0">Create a faculty account directly - account will be immediately active without pending approval.</p>
+</div>
+
+<div class="emp-card" style="max-width:560px;">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-person-plus-fill text-primary fs-5"></i>
+        <h2 class="h2 mb-0">Examiner Details</h2>
+    </div>
+
+    <form method="POST">
+        <div class="emp-form-group">
+            <label class="emp-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="emp-input" name="name" placeholder="e.g. Dr. Priya Mehta" required>
+        </div>
+
+        <div class="emp-form-group">
+            <label class="emp-label">Email Address <span class="text-danger">*</span></label>
+            <input type="email" class="emp-input" name="email" placeholder="examiner@institution.local" required>
+        </div>
+
+        <div class="emp-form-group">
+            <label class="emp-label">Password <span class="text-danger">*</span></label>
+            <div class="position-relative">
+                <input type="password" class="emp-input" name="password" placeholder="Set a secure initial password" required style="padding-right: 2.75rem;">
+                <button type="button" class="btn border-0 p-0 position-absolute end-0 top-50 translate-middle-y me-3 text-secondary btn-toggle-password" style="cursor: pointer; background: transparent; line-height: 1;" aria-label="Show password">
+                    <i class="bi bi-eye fs-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-6">
+                <label class="emp-label">Department</label>
+                <input type="text" class="emp-input" name="department" placeholder="e.g. Computer Science">
+            </div>
+            <div class="col-md-6">
+                <label class="emp-label">Contact</label>
+                <input type="tel" class="emp-input" name="contact" placeholder="e.g. 9876543210">
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('admin.examiners') }}" class="emp-btn-outline">Cancel</a>
+            <button type="submit" class="emp-btn-primary">
+                <i class="bi bi-check-lg"></i> Create & Activate
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

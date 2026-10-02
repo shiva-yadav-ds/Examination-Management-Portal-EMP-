@@ -1,0 +1,249 @@
+{# student/exam_detail.html - Exam detail and slot booking page.
+   Displays exam metadata, evaluation criteria preview, and available slot booking table. Route: student.exam_detail #}
+{% extends "base.html" %}
+
+{% block title %}{{ exam.name }} - EMP{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+            <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.exams') }}" class="text-decoration-none">Exams</a></li>
+            <li class="breadcrumb-item active">{{ exam.name }}</li>
+        </ol>
+    </nav>
+    <h1>{{ exam.name }}</h1>
+    <p class="text-emp-secondary mb-0">
+        {{ exam.course.code }} - {{ exam.course.name }} | {{ exam.type }} | Duration: {{ exam.duration }} mins
+    </p>
+</div>
+
+<!-- Active Booking Banner -->
+{% if active_booking %}
+<div class="emp-card mb-4" style="border-color:#ceead6; background-color:#f6fbf7;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-check-circle-fill text-success fs-3"></i>
+            <div>
+                <h3 class="h3 mb-0" style="color:#137333; font-size:1.05rem;">You are already booked for this exam</h3>
+                <div class="text-emp-secondary" style="font-size:0.875rem;">
+                    Date: <strong>{{ active_booking.slot.exam_date.strftime('%d %b %Y') }}</strong> |
+                    Time: <strong>{{ active_booking.slot.start_time.strftime('%H:%M') }} - {{ active_booking.slot.end_time.strftime('%H:%M') }}</strong> |
+                    Examiner: <strong>{{ active_booking.slot.examiner.name }}</strong>
+                </div>
+            </div>
+        </div>
+        <a href="{{ url_for('student.bookings') }}" class="emp-btn-outline emp-btn-sm">
+            View in My Bookings
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Exam Summary Card -->
+<div class="emp-card mb-4 py-3 px-4">
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Duration</div>
+            <div class="fw-medium">{{ exam.duration }} minutes</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Max Marks</div>
+            <div class="fw-medium">{{ exam.max_marks }} marks</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Booking Closes</div>
+            <div class="fw-medium" style="font-size:0.8125rem;">
+                {{ exam.booking_end.strftime('%d %b %Y, %H:%M') if exam.booking_end else 'Open' }}
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="emp-stat-header" style="font-size:0.75rem;"><span class="emp-stat-dot"></span> Rubrics</div>
+            <div class="fw-medium">{{ exam.rubrics|length }} evaluation criteria</div>
+        </div>
+    </div>
+</div>
+
+<!-- Evaluation Rubrics Preview -->
+{% if exam.rubrics %}
+<div class="emp-card mb-4 p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-list-check text-secondary"></i>
+        <h3 class="h3 mb-0" style="font-size:1rem;">Evaluation Criteria</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Criterion</th>
+                    <th>Max Marks</th>
+                    <th>Weightage</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in exam.rubrics %}
+                <tr>
+                    <td><span class="fw-medium">{{ r.criterion_name }}</span></td>
+                    <td>{{ r.max_marks }}</td>
+                    <td>{{ "%.0f%%"|format(r.weightage) if r.weightage else '-' }}</td>
+                    <td><span class="text-emp-secondary">{{ r.description or '-' }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lifecycle Status Banner -->
+{% if exam.status == 'Slot Creation' %}
+<div class="alert alert-info py-3 px-3 mb-4 d-flex align-items-start gap-2" style="font-size:0.875rem; border-radius: var(--radius-md);">
+    <i class="bi bi-hourglass-split text-info mt-1 fs-5"></i>
+    <div>
+        <strong>Slot Creation Phase:</strong>
+        <div class="text-emp-secondary">Faculty examiners are currently creating examination slots. Student booking will be opened by administrators once schedules are set.</div>
+    </div>
+</div>
+{% elif exam.status in ['Booking Closed', 'Closed', 'Completed'] %}
+<div class="alert alert-secondary py-3 px-3 mb-4 d-flex align-items-start gap-2" style="font-size:0.875rem; border-radius: var(--radius-md);">
+    <i class="bi bi-lock-fill text-secondary mt-1 fs-5"></i>
+    <div>
+        <strong>Examination Concluded:</strong>
+        <div class="text-emp-secondary">This examination has completed or closed. Slot reservations are no longer being accepted.</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Booking Window Notice (Yellow Toast) - Moved above Available Slots Table -->
+{% if exam.status == 'Booking Open' and not booking_open %}
+<div class="alert alert-warning py-3 px-3 mb-3 d-flex align-items-start gap-2" style="font-size:0.875rem; border-radius: var(--radius-md);">
+    <i class="bi bi-clock-history text-warning mt-1 fs-5"></i>
+    <div>
+        <strong>Booking Window Notice:</strong>
+        <div class="text-emp-secondary">{{ booking_window_info.message }}</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Available Slots Table -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-secondary"></i>
+            <h2 class="h2 mb-0" style="font-size:1.1rem;">Available Time Slots ({{ slots|length }})</h2>
+        </div>
+        <div>
+            {% if booking_open %}
+                <span class="emp-chip emp-chip-active" style="font-size:0.75rem;"><i class="bi bi-check-circle me-1"></i> Booking Open</span>
+            {% else %}
+                <span class="emp-chip emp-chip-inactive" style="font-size:0.75rem;"><i class="bi bi-lock me-1"></i> Booking Closed</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if slots %}
+    <div class="table-responsive">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Examiner</th>
+                    <th>Seats Available</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in slots %}
+                <tr>
+                    <td><span class="fw-medium">{{ slot.exam_date.strftime('%d %b %Y') }}</span></td>
+                    <td>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
+                    <td>
+                        <span class="fw-medium">{{ slot.examiner.name }}</span>
+                        <div class="text-emp-secondary" style="font-size:0.75rem;">
+                            {{ slot.examiner.examiner_profile.department if slot.examiner.examiner_profile and slot.examiner.examiner_profile.department else "Faculty" }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ slot.available_seats }}</span> / {{ slot.capacity }} seats left
+                    </td>
+                    <td style="text-align:right;">
+                        {% if active_booking %}
+                            <button class="emp-btn-outline emp-btn-sm" disabled title="You already have a booked slot">
+                                Booked
+                            </button>
+                        {% elif not booking_open %}
+                            <button class="emp-btn-outline emp-btn-sm" disabled title="Booking window is not currently open">
+                                Window Closed
+                            </button>
+                        {% else %}
+                            <button type="button" class="emp-btn-primary emp-btn-sm" data-bs-toggle="modal" data-bs-target="#bookSlotModal-{{ slot.id }}">
+                                <i class="bi bi-check2"></i> Book Slot
+                            </button>
+
+                            <!-- Book Slot Confirmation Modal -->
+                            <div class="modal fade" id="bookSlotModal-{{ slot.id }}" tabindex="-1" aria-labelledby="bookSlotModalLabel-{{ slot.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+                                    <div class="modal-content text-start" style="border-radius: var(--radius-md); border: 1px solid var(--emp-border); box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
+                                        <div class="modal-body p-4 text-center">
+                                            <div class="mb-3">
+                                                <span class="d-inline-flex align-items-center justify-content-center"
+                                                      style="width: 56px; height: 56px; border-radius: 50%; background: #e8f0fe; color: var(--emp-blue); font-size: 1.5rem; border: 1px solid #d2e3fc;">
+                                                    <i class="bi bi-calendar2-check"></i>
+                                                </span>
+                                            </div>
+                                            <h3 class="h3 mb-2" id="bookSlotModalLabel-{{ slot.id }}" style="font-size: 1.15rem;">Confirm Slot Reservation?</h3>
+                                            <p class="text-emp-secondary mb-3" style="font-size: 0.875rem;">
+                                                You are reserving a seat for <strong>{{ exam.name }}</strong>.
+                                            </p>
+                                            <div class="p-3 mb-4 rounded text-start" style="background: #fafbfc; border: 1px solid var(--emp-border); font-size: 0.8125rem;">
+                                                <div class="d-flex justify-content-between py-1 border-bottom" style="border-color: #f1f3f4 !important;">
+                                                    <span class="text-emp-secondary">Date:</span>
+                                                    <strong>{{ slot.exam_date.strftime('%d %b %Y') }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between py-1 border-bottom" style="border-color: #f1f3f4 !important;">
+                                                    <span class="text-emp-secondary">Time Window:</span>
+                                                    <strong>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between py-1 border-bottom" style="border-color: #f1f3f4 !important;">
+                                                    <span class="text-emp-secondary">Examiner:</span>
+                                                    <strong>{{ slot.examiner.name }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between py-1">
+                                                    <span class="text-emp-secondary">Seats Remaining:</span>
+                                                    <span class="text-success fw-bold">{{ slot.available_seats }} / {{ slot.capacity }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button type="button" class="emp-btn-outline" data-bs-dismiss="modal">
+                                                    Cancel
+                                                </button>
+                                                <form method="POST" action="{{ url_for('student.book_slot', slot_id=slot.id) }}" style="display:inline;">
+                                                    <button type="submit" class="emp-btn-primary">
+                                                        <i class="bi bi-check2"></i> Confirm & Book
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-calendar-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No time slots are currently available for this examination.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

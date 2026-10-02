@@ -1,0 +1,278 @@
+{# admin/exams.html - Examinations directory and creation form.
+   Lists all exams across courses with status chips and provides new exam form. Route: admin.exams #}
+{% extends "base.html" %}
+
+{% block title %}Examinations - EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1" style="font-size:0.8125rem;">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Admin</a></li>
+                <li class="breadcrumb-item active">Examinations</li>
+            </ol>
+        </nav>
+        <h1>Examinations</h1>
+        <p class="text-emp-secondary mb-0">Create and manage examination events, timelines, and rubrics.</p>
+    </div>
+</div>
+
+<!-- Create Examination Card -->
+<div class="emp-card mb-4">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-plus-circle text-primary fs-5"></i>
+        <h2 class="h2 mb-0">Create Examination</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.create_exam') }}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="emp-label">Course <span class="text-danger">*</span></label>
+                <select class="emp-input emp-select" name="course_id" required>
+                    <option value=""> - Select course - </option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}">{{ c.code }} - {{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="emp-label">Exam Name <span class="text-danger">*</span></label>
+                <input type="text" class="emp-input" name="name" placeholder="e.g. MLT Viva - Jan 2026" required maxlength="150">
+            </div>
+            <div class="col-md-4">
+                <label class="emp-label">Type <span class="text-danger">*</span></label>
+                <select class="emp-input emp-select" name="type" required>
+                    {% for t in exam_types %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="emp-label">Duration (minutes) <span class="text-danger">*</span></label>
+                <input type="number" class="emp-input" name="duration" min="1" placeholder="e.g. 30" required>
+            </div>
+            <div class="col-md-4">
+                <label class="emp-label">Max Marks <span class="text-danger">*</span></label>
+                <input type="number" class="emp-input" name="max_marks" min="1" placeholder="e.g. 100" required>
+            </div>
+
+            <div class="col-12">
+                <p class="emp-label mb-2" style="color:var(--emp-text-secondary);">Slot Creation Window (optional - can set later)</p>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="emp-label">Slot Creation Opens</label>
+                        <input type="datetime-local" class="emp-input" name="slot_creation_start">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="emp-label">Slot Creation Closes</label>
+                        <input type="datetime-local" class="emp-input" name="slot_creation_end">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <p class="emp-label mb-2" style="color:var(--emp-text-secondary);">Booking Window (optional - can set later)</p>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="emp-label">Booking Opens</label>
+                        <input type="datetime-local" class="emp-input" name="booking_start">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="emp-label">Booking Closes (= cancellation deadline)</label>
+                        <input type="datetime-local" class="emp-input" name="booking_end">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end">
+                <button type="submit" class="emp-btn-primary">
+                    <i class="bi bi-check-lg"></i> Create as Draft
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Examinations Table -->
+<div class="emp-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom bg-white d-flex align-items-center gap-2">
+        <i class="bi bi-card-list text-secondary"></i>
+        <h2 class="h2 mb-0" style="font-size:1.1rem;">All Examinations ({{ exams|length }})</h2>
+    </div>
+
+    {% if exams %}
+    <!-- Desktop Table View -->
+    <div class="table-responsive emp-desktop-table">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Max Marks</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td><span class="fw-medium">{{ exam.name }}</span></td>
+                    <td><span class="text-primary fw-medium" style="letter-spacing:0.3px;">{{ exam.course.code }}</span></td>
+                    <td><span class="text-emp-secondary">{{ exam.type }}</span></td>
+                    <td>{{ exam.duration }} min</td>
+                    <td>{{ exam.max_marks }}</td>
+                    <td>
+                        {% if exam.status == 'Draft' %}
+                            <span class="emp-chip" style="background:#f1f3f4;color:var(--emp-text-secondary);">Draft</span>
+                        {% elif exam.status == 'Slot Creation' %}
+                            <span class="emp-phase-badge emp-phase-slot-creation">
+                                <i class="bi bi-calendar-plus"></i>
+                                Slot Creation
+                            </span>
+                        {% elif exam.status == 'Booking Open' %}
+                            <span class="emp-phase-badge emp-phase-booking-open">
+                                <i class="bi bi-calendar-check"></i>
+                                Booking Open
+                            </span>
+                        {% elif exam.status in ['Booking Closed', 'Closed'] %}
+                            <span class="emp-phase-badge emp-phase-booking-closed">
+                                <i class="bi bi-lock-fill"></i>
+                                Booking Closed
+                            </span>
+                        {% elif exam.status == 'Completed' %}
+                            <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        <a href="{{ url_for('admin.exam_detail', exam_id=exam.id) }}" class="emp-btn-outline emp-btn-sm">
+                            <i class="bi bi-eye"></i> Manage
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="emp-mobile-card-list p-3">
+        {% for exam in exams %}
+        <div class="emp-exam-card">
+            <div class="emp-exam-card-header">
+                <div>
+                    <div class="emp-exam-card-title">{{ exam.name }}</div>
+                    <div class="emp-exam-card-subtitle">{{ exam.course.code }}</div>
+                </div>
+                {% if exam.status == 'Draft' %}
+                    <span class="emp-chip" style="background:#f1f3f4;color:var(--emp-text-secondary);">Draft</span>
+                {% elif exam.status == 'Slot Creation' %}
+                    <span class="emp-phase-badge emp-phase-slot-creation">
+                        <i class="bi bi-calendar-plus"></i>
+                        Slot Creation
+                    </span>
+                {% elif exam.status == 'Booking Open' %}
+                    <span class="emp-phase-badge emp-phase-booking-open">
+                        <i class="bi bi-calendar-check"></i>
+                        Booking Open
+                    </span>
+                {% elif exam.status in ['Booking Closed', 'Closed'] %}
+                    <span class="emp-phase-badge emp-phase-booking-closed">
+                        <i class="bi bi-lock-fill"></i>
+                        Booking Closed
+                    </span>
+                {% elif exam.status == 'Completed' %}
+                    <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
+                {% endif %}
+            </div>
+
+            <div class="emp-exam-card-body">
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-journal-text me-1"></i>Type</div>
+                    <div class="emp-exam-card-value">{{ exam.type }}</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-clock me-1"></i>Duration</div>
+                    <div class="emp-exam-card-value">{{ exam.duration }} min</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-trophy me-1"></i>Max Marks</div>
+                    <div class="emp-exam-card-value">{{ exam.max_marks }}</div>
+                </div>
+            </div>
+
+            <div class="emp-exam-card-footer">
+                <a href="{{ url_for('admin.exam_detail', exam_id=exam.id) }}" class="emp-action-btn emp-action-btn-secondary">
+                    <i class="bi bi-eye"></i> Manage
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="emp-mobile-card-list p-3">
+        {% for exam in exams %}
+        <div class="emp-exam-card">
+            <div class="emp-exam-card-header">
+                <div>
+                    <div class="emp-exam-card-title">{{ exam.name }}</div>
+                    <div class="emp-exam-card-subtitle">{{ exam.course.code }}</div>
+                </div>
+                {% if exam.status == 'Draft' %}
+                    <span class="emp-chip" style="background:#f1f3f4;color:var(--emp-text-secondary);">Draft</span>
+                {% elif exam.status == 'Slot Creation' %}
+                    <span class="emp-phase-badge emp-phase-slot-creation">
+                        <i class="bi bi-calendar-plus"></i>
+                        Slot Creation
+                    </span>
+                {% elif exam.status == 'Booking Open' %}
+                    <span class="emp-phase-badge emp-phase-booking-open">
+                        <i class="bi bi-calendar-check"></i>
+                        Booking Open
+                    </span>
+                {% elif exam.status in ['Booking Closed', 'Closed'] %}
+                    <span class="emp-phase-badge emp-phase-booking-closed">
+                        <i class="bi bi-lock-fill"></i>
+                        Booking Closed
+                    </span>
+                {% elif exam.status == 'Completed' %}
+                    <span class="emp-chip" style="background:#e8f0fe;color:var(--emp-blue);">Completed</span>
+                {% endif %}
+            </div>
+
+            <div class="emp-exam-card-body">
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-journal-text me-1"></i>Type</div>
+                    <div class="emp-exam-card-value">{{ exam.type }}</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-clock me-1"></i>Duration</div>
+                    <div class="emp-exam-card-value">{{ exam.duration }} min</div>
+                </div>
+                <div class="emp-exam-card-field">
+                    <div class="emp-exam-card-label"><i class="bi bi-trophy me-1"></i>Max Marks</div>
+                    <div class="emp-exam-card-value">{{ exam.max_marks }}</div>
+                </div>
+            </div>
+
+            <div class="emp-exam-card-footer">
+                <a href="{{ url_for('admin.exam_detail', exam_id=exam.id) }}" class="emp-action-btn emp-action-btn-secondary">
+                    <i class="bi bi-eye"></i> Manage
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-emp-secondary">
+        <i class="bi bi-journal-x display-6 d-block mb-2 text-muted"></i>
+        <p class="mb-0">No examinations yet. Create one using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
